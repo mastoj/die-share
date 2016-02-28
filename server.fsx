@@ -4,4 +4,4 @@
 open Suave
 open App
 
-startWebServer defaultConfig App
+startWebServer defaultConfig app
