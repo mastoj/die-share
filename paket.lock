@@ -20,4 +20,7 @@ NUGET
     Newtonsoft.Json (8.0.2)
     Suave (1.1.1)
       FSharp.Core (>= 3.1.2.5)
+    Suave.Experimental (1.1.1)
+      FSharp.Core (>= 3.1.2.5)
+      Suave (>= 1.1.1)
     Zlib.Portable (1.11.0) - framework: portable-net40+sl50+wp80+win80

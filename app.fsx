@@ -5,8 +5,30 @@ open Suave.Filters
 open Suave.Operators
 open Suave.Successful
 
+module Views =
+    open Suave.Html
+    module Index =
+        type X = Attribute        
+        let render content =
+            html [
+                head [
+                    title "Die-Share"
+                    linkAttr [
+                        "src","something"
+                    ]
+                ]
+                body [
+                    div [
+                        span (text "Hello")
+                        content
+                    ]
+                ]
+            ] |> xmlToString
+
+open Suave.Html
 let login =
-    path "/login" >=> OK "Hello login"
+    let result = Views.Index.render (span (text " world"))
+    path "/login" >=> OK (result.ToString())
 
 let start =
     path "/" >=> OK "Hello start"

@@ -1,6 +1,7 @@
 source https://www.nuget.org/api/v2
 
 nuget Suave
+nuget Suave.Experimental
 nuget Akka
 nuget Akka.FSharp
 nuget FSharp.Data
