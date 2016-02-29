@@ -8,7 +8,7 @@ open Suave.Successful
 module Views =
     open Suave.Html
     module Index =
-        type X = Attribute        
+        type X = Attribute
         let render content =
             html [
                 head [
@@ -47,11 +47,16 @@ let expense =
 let content =
     pathScan "/content/%s" (fun _ -> OK "Hello content")
 
+let basicAuth =
+    Authentication.authenticateBasic((=) ("tomas", "password"))
+
 let app =
     choose [
-        start
         login
-        expense
-        api
         content
+        basicAuth <| choose [
+            start
+            expense
+            api
+        ]
     ]
