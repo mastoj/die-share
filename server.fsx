@@ -1,5 +1,5 @@
 #load "references.fsx"
-#load "app.fsx"
+#load "app.fs"
 
 open Suave
 open App

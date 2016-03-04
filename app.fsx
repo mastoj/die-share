@@ -4,9 +4,10 @@ open Suave
 open Suave.Filters
 open Suave.Operators
 open Suave.Successful
+open Suave.Cookie
+open Suave.Html
 
 module Views =
-    open Suave.Html
     module Index =
         type X = Attribute
         let render content =
@@ -25,13 +26,34 @@ module Views =
                 ]
             ] |> xmlToString
 
-open Suave.Html
-let login =
-    let result = Views.Index.render (span (text " world"))
-    path "/login" >=> OK (result.ToString())
+let tryLogin queryParam =
+    let userName =
+        match queryParam "userName" with
+        | Choice1Of2 s -> s
+        | _ -> failwith "no user name"
+    let password =
+        match queryParam "password" with
+        | Choice1Of2 s -> s
+        | _ -> failwith "no password"
+    if userName = password
+    then
+        Authentication.authenticated Session false
+        Redirection.FOUND "/"
+    else Redirection.FOUND "/login"
 
-let start =
-    path "/" >=> OK "Hello start"
+let login successWebPart =
+    let result = Views.Index.render (span (text " world"))
+    choose [
+        path "/login" >=> OK (result.ToString())
+        path "/dologin" >=>
+            request(fun r -> tryLogin r.queryParam)
+        Authentication.authenticateWithLogin Session "/login" successWebPart
+    ]
+
+let start : WebPart =
+    (fun ctx ->
+        (path "/" >=> OK ("Hello start " + (ctx.userState.[Authentication.UserNameKey].ToString()))) ctx
+        )
 
 let api =
     choose [
@@ -47,14 +69,10 @@ let expense =
 let content =
     pathScan "/content/%s" (fun _ -> OK "Hello content")
 
-let basicAuth =
-    Authentication.authenticateBasic((=) ("tomas", "password"))
-
 let app =
     choose [
-        login
         content
-        basicAuth <| choose [
+        login <| choose [
             start
             expense
             api

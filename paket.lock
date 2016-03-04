@@ -8,7 +8,7 @@ NUGET
       FsPickler (>= 1.2.21)
       FSPowerPack.Core.Community (>= 3.0.0)
       FSPowerPack.Linq.Community (>= 3.0.0)
-    FAKE (4.20.0)
+    FAKE (4.21.0)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.0.0.1)
     FSharp.Data (2.2.5)
