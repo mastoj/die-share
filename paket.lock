@@ -8,7 +8,7 @@ NUGET
       FsPickler (>= 1.2.21)
       FSPowerPack.Core.Community (>= 3.0.0)
       FSPowerPack.Linq.Community (>= 3.0.0)
-    FAKE (4.21.0)
+    FAKE (4.21.4)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.0.0.1)
     FSharp.Data (2.2.5)
@@ -24,3 +24,7 @@ NUGET
       FSharp.Core (>= 3.1.2.5)
       Suave (>= 1.1.1)
     Zlib.Portable (1.11.0) - framework: portable-net40+sl50+wp80+win80
+GIST
+  remote: mastoj/43331973297ae3a8da8b
+  specs:
+    targets.fsx (1230934c2d6017e3b68bb7caa3ea2dbd7c1f84d1)

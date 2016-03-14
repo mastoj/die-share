@@ -1,6 +1,6 @@
-#r "packages/FSharp.Compiler.Service/lib/net45/FSharp.Compiler.Service.dll"
-#r "packages/Suave/lib/net40/Suave.dll"
-#r "packages/FAKE/tools/FakeLib.dll"
+//#r "../../../packages/FSharp.Compiler.Service/lib/net45/FSharp.Compiler.Service.dll"
+//#r "../../../packages/Suave/lib/net40/Suave.dll"
+//#r "../../../packages/FAKE/tools/FakeLib.dll"
 
 open Fake
 open Suave
@@ -11,7 +11,7 @@ open Microsoft.FSharp.Compiler.Interactive.Shell
 
 let sbOut = new Text.StringBuilder()
 let sbErr = new Text.StringBuilder()
-let projectRoot = __SOURCE_DIRECTORY__ 
+let projectRoot = __SOURCE_DIRECTORY__ @@ "../../../"
 
 let fsiSession =
   let inStream = new StringReader("")
@@ -139,4 +139,4 @@ Target "stop" (fun _ ->
     File.Delete(pidFile)
 )
 
-RunTargetOrDefault "run"
+//RunTargetOrDefault "run"

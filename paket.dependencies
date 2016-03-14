@@ -7,3 +7,5 @@ nuget Akka.FSharp
 nuget FSharp.Data
 nuget FAKE
 nuget FSharp.Compiler.Service
+
+gist mastoj/43331973297ae3a8da8b

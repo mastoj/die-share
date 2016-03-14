@@ -4,7 +4,8 @@
 #I "./packages/FSPowerPack.Linq.Community/lib/net40/"
 #I "./packages/Akka.FSharp/lib/net45/"
 #I "./packages/Suave/lib/net40/"
-#I "./packages/Suave.Experimental/lib/net40/"
+#I "/Users/tomasjansson/git/suave/src/Experimental/bin/Release"
+//#I "./packages/Suave.Experimental/lib/net40/"
 #I "./packages/FSharp.Data/lib/net40"
 
 #r "Suave.dll"
