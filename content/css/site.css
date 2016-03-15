@@ -92,6 +92,7 @@ p {
     border: 1px solid #ddd;
     margin: 0 0.5em 2em;
     padding: 0 0 3em;
+    vertical-align: middle;
 }
 
 /*
@@ -122,66 +123,6 @@ p {
 
     }
 
-
-/*
- * -- PRICING TABLE PRICE --
- * Styles for the price and the corresponding <span>per month</span>
- */
-.pricing-table-price {
-    font-size: 6em;
-    margin: 0.2em 0 0;
-    font-weight: 100;
-}
-    .pricing-table-price span {
-        display: block;
-        text-transform: uppercase;
-        font-size: 0.2em;
-        padding-bottom: 2em;
-        font-weight: 400;
-        color: rgba(255, 255, 255, 0.5);
-        *color: #fff;
-    }
-
-
-
-/*
- * -- PRICING TABLE LIST --
- * Each pricing table has a <ul> which is denoted by the .pricing-table-list class
- */
-.pricing-table-list {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-
-/*
- * -- PRICING TABLE LIST ELEMENTS --
- * Styles for the individual list elements within each pricing table
- */
-.pricing-table-list li {
-    padding: 0.8em 0;
-    background: #f7f7f7;
-    border-bottom: 1px solid #e7e7e7;
-}
-
-
-/*
- * -- PRICING TABLE BUTTON --
- * Styles for the "Choose" button at the bottom of a pricing table.
- * This inherits from Pure Button.
- */
-.button-choose {
-    border: 1px solid #ccc;
-    background: #fff;
-    color: #333;
-    border-radius: 2em;
-    font-weight: bold;
-    position: relative;
-    bottom: -1.5em;
-}
-
 .information-head {
     color: black;
     font-weight: 500;
@@ -192,10 +133,36 @@ p {
     color: #888;
     text-align: center;
 }
-    .footer a {
-        color: #ddd;
-    }
+.footer a {
+    color: #ddd;
+}
 
+.tile {
+    height: 10em;
+}
+
+.tile a {
+    font-weight: bold;
+    font-family: sans-serif;
+    text-decoration: none;
+    height: 100%;
+    background: #bada55;
+    display: block;
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+    text-align: center;
+    line-height: 10em;
+}
+
+.tile a:hover {
+    background: #a55;
+}
+
+.tile a .tile-content {
+    font-size: 1.5em;
+    top: 50%;
+    margin-top: -0.75em;
+}
 
 
 /*

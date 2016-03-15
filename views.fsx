@@ -53,14 +53,17 @@ let render content =
     ] |> renderHtmlDocument
 
 let reportTile reportType columns =
-    divClass ["pure-u-1"; (sprintf "pure-u-md-1-%i" columns)]
-        [
-            divClass ["pricing-table";"pricing-table-free"]
-                [
-                    h2 (text reportType)
-                    aAttr (sprintf "/%s" (reportType.ToLower())) ["class", "button-choose pure-button"] (text "Choose")
-                ]
-        ]
+        divClass ["pure-u-1"; (sprintf "pure-u-md-1-%i" columns); "tile"]
+            [
+                a "#"
+                    [
+                        divClass ["tile-content"]
+                            (text reportType)
+//                            [
+//        //                            aAttr (sprintf "/%s" (reportType.ToLower())) ["class", "button-choose pure-button"] (text "Choose")
+//                            ]
+                    ]
+            ]
 
 let Index() =
     render <|
@@ -74,32 +77,8 @@ let Index() =
                     [
                         divClass ["pricing-tables";"pure-g"]
                             [
-                                for x in ["Expenses"; "Travel"] do
+                                for x in ["Expenses"; "Travels"] do
                                     yield reportTile x 2
                             ]
                     ]
             ]
-//
-//
-//            <div class="pure-u-1 pure-u-md-1-3">
-//                <div class="pricing-table pricing-table-free">
-//                    <div class="pricing-table-header">
-//                        <h2>Personal</h2>
-//
-//                        <span class="pricing-table-price">
-//                            $5 <span>per month</span>
-//                        </span>
-//                    </div>
-//
-//                    <ul class="pricing-table-list">
-//                        <li>Free setup</li>
-//                        <li>Custom sub-domain</li>
-//                        <li>Standard customer support</li>
-//                        <li>1GB file storage</li>
-//                        <li>1 database</li>
-//                        <li>Unlimited bandwidth</li>
-//                    </ul>
-//
-//                    <button class="button-choose pure-button">Choose</button>
-//                </div>
-//            </div>
