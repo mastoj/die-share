@@ -3,3 +3,4 @@ packages/
 .fake/
 .pid
 run.log
+uploads/

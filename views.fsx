@@ -1,5 +1,5 @@
 #load "references.fsx"
-#load "views.fsx"
+#load "html.fsx"
 
 open Suave
 open Suave.Filters
@@ -9,20 +9,7 @@ open Suave.Cookie
 open Suave.State.CookieStateStore
 open Suave.State
 open Suave.Html
-
-let scrtip2Attr attr = tag "script" attr empty
-
-let jsLink src = scrtip2Attr ["src", src]
-let cssLink href = linkAttr [ "href", href; " rel", "stylesheet"; " type", "text/css" ]
-let ulAttr = tag "ul"
-let ul = pAttr [ ]
-let liAttr = tag "li"
-let li = pAttr [ ]
-let h1Attr = tag "h1"
-let h1 = pAttr [ ]
-let h2Attr = tag "h2"
-let h2 = pAttr [ ]
-let divClass classes = divAttr ["class", (classes |> String.concat " ") ]
+open Html
 
 let headerMenu =
     divClass ["pure-menu"; "pure-menu-horizontal"]
@@ -52,16 +39,17 @@ let render content =
       ]
     ] |> renderHtmlDocument
 
-let reportTile reportType columns =
+let renderForm formPage =
+    render <|
+        divClass ["layout"] formPage
+
+let reportTile (reportType:string) columns =
         divClass ["pure-u-1"; (sprintf "pure-u-md-1-%i" columns); "tile"]
             [
-                a "#"
+                a (sprintf "%s" (reportType.ToLower()))
                     [
                         divClass ["tile-content"]
                             (text reportType)
-//                            [
-//        //                            aAttr (sprintf "/%s" (reportType.ToLower())) ["class", "button-choose pure-button"] (text "Choose")
-//                            ]
                     ]
             ]
 
@@ -79,6 +67,44 @@ let Index() =
                             [
                                 for x in ["Expenses"; "Travels"] do
                                     yield reportTile x 2
+                            ]
+                    ]
+            ]
+
+let inputElem label inputEl =
+    divClass ["pure-u-1"] [label; inputEl]
+
+module Expense =
+    let getProjects = ["Rock"; "Paper"; "Scissor"; "Lizard"; "Spock"]
+
+    let newExpense() =
+        renderForm <|
+            [
+                divClass ["header-container"]
+                    [h1 (text "File new expense")]
+                formAttr ["class", "pure-form pure-form-stacked";"method","post";"action","/expenses";"enctype","multipart/form-data"]
+                    [
+                        fieldset
+                            [
+                                divClass ["pure-g"]
+                                    [
+                                        (inputElem
+                                            // Project
+                                            (labelAttr ["for","project"] (text "Project"))
+                                            (selectAttr ["name", "project";"class","pure-input-1-4"]
+                                                (getProjects |> List.map (fun x -> option (text x)))))
+
+                                        (inputElem
+                                        // Description
+                                            (labelAttr ["for","description"] (text "Description"))
+                                            (inputAttr ["name", "description";"class","pure-input-1-4"]))
+
+                                        (inputElem
+                                            (labelAttr ["for","file[0]"] (text "Files"))
+                                            (div [inputAttr ["type","file";"name","file[0]";"class","pure-input-1-4"]]))
+                                    ]
+
+                                buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")
                             ]
                     ]
             ]
