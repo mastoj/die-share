@@ -7,6 +7,7 @@
 #I "/Users/tomasjansson/git/suave/src/Experimental/bin/Release"
 //#I "./packages/Suave.Experimental/lib/net40/"
 #I "./packages/FSharp.Data/lib/net40"
+#I "packages/Newtonsoft.Json/lib/net45"
 
 #r "Suave.dll"
 #r "Suave.Experimental.dll"
@@ -16,3 +17,4 @@
 #r "FSharp.PowerPack.Linq.dll"
 #r "Akka.FSharp.dll"
 #r "FSharp.Data"
+#r "Newtonsoft.Json.dll"

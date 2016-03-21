@@ -100,8 +100,11 @@ module Expense =
                                             (inputAttr ["name", "description";"class","pure-input-1-4"]))
 
                                         (inputElem
-                                            (labelAttr ["for","file[0]"] (text "Files"))
-                                            (div [inputAttr ["type","file";"name","file[0]";"class","pure-input-1-4"]]))
+                                            (labelAttr ["for","file"] (text "Files"))
+                                            (div [inputAttr ["type","file";"name","file";"class","pure-input-1-4 file-uploader"]]))
+                                        (inputElem
+                                            (labelAttr ["for","file"] (text "Files"))
+                                            (div [inputAttr ["type","file";"name","file2";"class","pure-input-1-4 file-uploader"]]))
                                     ]
 
                                 buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")

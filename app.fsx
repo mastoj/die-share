@@ -1,6 +1,7 @@
 #load "references.fsx"
 #load "views.fsx"
 
+open Newtonsoft.Json
 open Suave
 open Suave.Filters
 open Suave.Operators
@@ -12,30 +13,49 @@ open Suave.Html
 open System.IO
 open Views
 
+module FileIO =
+    open System.IO
+    let move src dest =
+        if File.Exists(dest) then File.Delete(dest)
+        File.Move(src, dest)
+
+    let createDirectory path =
+        if not (Directory.Exists(path)) then Directory.CreateDirectory(path) |> ignore
+
 let api =
     Writers.setMimeType "application/json" >=>
         choose [
             pathScan "/api/expense/%s" (fun _ -> OK "Hello api")
         ]
 
+type FileUploadResult = {
+    FileId: int
+    FileName: string
+}
 let expense =
     let saveFile httpFile =
-        System.IO.Directory.CreateDirectory(__SOURCE_DIRECTORY__ + "/uploads/") |> ignore
-        System.IO.File.Move(httpFile.tempFilePath, __SOURCE_DIRECTORY__ + "/uploads/" + httpFile.fileName)
+        FileIO.createDirectory (__SOURCE_DIRECTORY__ + "/uploads/")
+        FileIO.move httpFile.tempFilePath (__SOURCE_DIRECTORY__ + "/uploads/" + httpFile.fileName)
 
     choose [
         path "/expenses" >=>
             choose [
                 GET >=> OK (Expense.newExpense())
-                POST >=> (
+                POST >=> request(
                     fun x ->
                         printfn "Request: %A" x
-                        printfn "Files: %A" x.request.files
-                        printfn "Formdata: %A" (x.request.formData "description")
-                        printfn "Files2: %A" (x.request.formData "file[0]")
-                        x.request.multiPartFields |> List.iter (printfn "Multipart fields: %A")
-                        x.request.files |> List.iter (fun x -> x |> saveFile)
-                        OK "Posted" x)
+                        printfn "Raw data: %A" x.rawForm
+                        printfn "Formdata: %A" (x.formData "description")
+                        printfn "Files2: %A" (x.formData "file[0]")
+                        x.multiPartFields |> List.iter (printfn "Multipart fields: %A")
+                        x.files |> List.iter (fun x -> x |> saveFile)
+                        let result =
+                            {
+                                FileName = "Hello.pdf"
+                                FileId = 34
+                            }
+                        let resultString = JsonConvert.SerializeObject(result)
+                        (OK resultString >=> Writers.setMimeType "application/json"))
             ]
         pathScan "/expense/%i" (fun i -> OK (sprintf "New expense %A" i))
     ]

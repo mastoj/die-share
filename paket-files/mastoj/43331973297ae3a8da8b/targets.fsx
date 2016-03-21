@@ -11,7 +11,6 @@ open Microsoft.FSharp.Compiler.Interactive.Shell
 
 let sbOut = new Text.StringBuilder()
 let sbErr = new Text.StringBuilder()
-let projectRoot = __SOURCE_DIRECTORY__ @@ "../../../"
 
 let fsiSession =
   let inStream = new StringReader("")
@@ -29,7 +28,7 @@ let reportFsiError (e:exn) =
 let reloadScript () =
   try
     traceImportant "Reloading app.fsx script..."
-    let appFsx = projectRoot @@ "app.fsx"
+    let appFsx = __SOURCE_DIRECTORY__ @@ "app.fsx"
     fsiSession.EvalInteraction(sprintf "#load @\"%s\"" appFsx)
     fsiSession.EvalInteraction("open App")
     match fsiSession.EvalExpression("app") with
@@ -47,7 +46,7 @@ let currentApp = ref (fun _ -> async { return None })
 
 let serverConfig =
   { defaultConfig with
-      homeFolder = Some projectRoot
+      homeFolder = Some __SOURCE_DIRECTORY__
       logger = Logging.Loggers.saneDefaultsFor Logging.LogLevel.Debug
       bindings = [ HttpBinding.mkSimple HTTP  "127.0.0.1" 8033] }
 
@@ -69,13 +68,13 @@ Target "run" (fun _ ->
 
   // Watch for changes & reload when app.fsx changes
   use rootWatcher =
-      !! (projectRoot @@ "*.*")
-      -- (projectRoot @@ ".*")
-      -- (projectRoot @@ "run.log")
+      !! (__SOURCE_DIRECTORY__ @@ "*.*")
+      -- (__SOURCE_DIRECTORY__ @@ ".*")
+      -- (__SOURCE_DIRECTORY__ @@ "run.log")
     |> WatchChangesWithOptions {IncludeSubdirectories = false} (fun x -> printfn "Changes: %A" x; reloadAppServer())
 
   use folderWatcher =
-      !! (projectRoot @@ "content/*")
+      !! (__SOURCE_DIRECTORY__ @@ "content/*")
     |> WatchChanges (fun x -> printfn "Changes: %A" x; reloadAppServer())
 
   traceImportant "Waiting for app.fsx edits. Press any key to stop."
@@ -85,6 +84,7 @@ Target "run" (fun _ ->
 
 // For atom
 open System.Diagnostics
+let projectRoot = __SOURCE_DIRECTORY__ @@ "../../../"
 let runLog = projectRoot @@ "run.log"
 let pidFile = projectRoot @@ ".pid"
 Target "spawn" (fun _ ->
@@ -98,7 +98,7 @@ Target "spawn" (fun _ ->
     let ps =
         ProcessStartInfo
             (
-                WorkingDirectory = projectRoot,
+                WorkingDirectory = __SOURCE_DIRECTORY__,
                 FileName = fileName, //__SOURCE_DIRECTORY__ @@ "build.sh",
                 Arguments = arguments,
                 RedirectStandardOutput = true,
