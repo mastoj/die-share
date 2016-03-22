@@ -82,7 +82,7 @@ module Expense =
             [
                 divClass ["header-container"]
                     [h1 (text "File new expense")]
-                formAttr ["class", "pure-form pure-form-stacked";"method","post";"action","/expenses";"enctype","multipart/form-data"]
+                formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action","/expenses";"enctype","multipart/form-data"]
                     [
                         fieldset
                             [
@@ -102,9 +102,6 @@ module Expense =
                                         (inputElem
                                             (labelAttr ["for","file"] (text "Files"))
                                             (div [inputAttr ["type","file";"name","file";"class","pure-input-1-4 file-uploader"]]))
-                                        (inputElem
-                                            (labelAttr ["for","file"] (text "Files"))
-                                            (div [inputAttr ["type","file";"name","file2";"class","pure-input-1-4 file-uploader"]]))
                                     ]
 
                                 buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")

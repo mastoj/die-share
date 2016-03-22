@@ -10,8 +10,17 @@ open Suave.Cookie
 open Suave.State.CookieStateStore
 open Suave.State
 open Suave.Html
+open System
 open System.IO
 open Views
+
+[<AutoOpen>]
+module WebModels =
+    type FileUploadResult = {
+        FileId: int
+        FileName: string
+        MimeType: string
+    }
 
 module FileIO =
     open System.IO
@@ -22,40 +31,51 @@ module FileIO =
     let createDirectory path =
         if not (Directory.Exists(path)) then Directory.CreateDirectory(path) |> ignore
 
+let random = new Random()
+let saveFile expenseId httpFile =
+    let fileId = random.Next(999999)
+    let directoryPath = sprintf "%s/uploads/%i/%i/" __SOURCE_DIRECTORY__ expenseId fileId
+    let targetFilePath = sprintf "%s%s" directoryPath httpFile.fileName
+    FileIO.createDirectory (directoryPath)
+    FileIO.move httpFile.tempFilePath (targetFilePath)
+    fileId
+
+let expenseApi : WebPart =
+    choose [
+        pathScan "/api/expense/%i" (fun expenseId ->
+            choose [
+                PUT >=> OK "Expense updated"
+            ])
+        pathScan "/api/expense/%i/file" (fun expenseId ->
+            choose [
+                POST >=>
+                    request(
+                        fun x ->
+                            x.multiPartFields |> List.iter (printfn "Multipart fields: %A")
+                            let file = x.files |> List.head
+                            let fileId = file |> saveFile expenseId
+                            let result =
+                                {
+                                    FileName = file.fileName
+                                    FileId = fileId
+                                    MimeType = file.mimeType
+                                }
+                            let resultString = JsonConvert.SerializeObject(result)
+                            (OK resultString >=> Writers.setMimeType "application/json"))
+            ])
+    ]
+
 let api =
     Writers.setMimeType "application/json" >=>
         choose [
-            pathScan "/api/expense/%s" (fun _ -> OK "Hello api")
+            expenseApi
         ]
 
-type FileUploadResult = {
-    FileId: int
-    FileName: string
-}
 let expense =
-    let saveFile httpFile =
-        FileIO.createDirectory (__SOURCE_DIRECTORY__ + "/uploads/")
-        FileIO.move httpFile.tempFilePath (__SOURCE_DIRECTORY__ + "/uploads/" + httpFile.fileName)
-
     choose [
         path "/expenses" >=>
             choose [
                 GET >=> OK (Expense.newExpense())
-                POST >=> request(
-                    fun x ->
-                        printfn "Request: %A" x
-                        printfn "Raw data: %A" x.rawForm
-                        printfn "Formdata: %A" (x.formData "description")
-                        printfn "Files2: %A" (x.formData "file[0]")
-                        x.multiPartFields |> List.iter (printfn "Multipart fields: %A")
-                        x.files |> List.iter (fun x -> x |> saveFile)
-                        let result =
-                            {
-                                FileName = "Hello.pdf"
-                                FileId = 34
-                            }
-                        let resultString = JsonConvert.SerializeObject(result)
-                        (OK resultString >=> Writers.setMimeType "application/json"))
             ]
         pathScan "/expense/%i" (fun i -> OK (sprintf "New expense %A" i))
     ]
