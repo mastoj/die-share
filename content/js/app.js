@@ -50,7 +50,6 @@
             file.amount = 0
             data.files.push(file)
             console.log(container, data)
-            updateForm()
         }
         return {
             addFile: addFile
