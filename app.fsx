@@ -1,6 +1,6 @@
 #load "references.fsx"
-#load "views.fsx"
 #load "expense.fsx"
+#load "views.fsx"
 
 open Newtonsoft.Json
 open Suave
@@ -61,23 +61,23 @@ let saveFile expenseId httpFile =
     fileId
 
 module Api =
-    let getExpenseReport expenseService expenseId _ =
-        expenseService.GetExpenseReport expenseId
+    let getExpenseReport expenseReportService expenseId _ =
+        expenseReportService.GetExpenseReport expenseId
         |> toJson
         |> OK
 
-    let submitExpenseReport expenseService id _ =
-        expenseService.SubmitExpenseReport id
+    let submitExpenseReport expenseReportService id _ =
+        expenseReportService.SubmitExpenseReport id
         OK ""
 
-    let updateExpense expenseService request =
+    let updateExpense expenseReportService request =
         request
         |> fromJson<ExpenseReport>
-        |> expenseService.UpdateExpenseReport
+        |> expenseReportService.UpdateExpenseReport
         OK ""
 
-    let getExpenseReports expenseService _ =
-        expenseService.GetExpenseReports "tomas"
+    let getExpenseReports expenseReportService _ =
+        expenseReportService.GetExpenseReports "tomas"
         |> toJson
         |> OK
 
@@ -94,16 +94,16 @@ module Api =
         let resultString = JsonConvert.SerializeObject(result)
         OK resultString
 
-    let expenseApi expenseService : WebPart =
+    let expenseApi expenseReportService : WebPart =
         choose [
-            path "/expenses" >=> GET >=> request(getExpenseReports expenseService)
+            path "/expenses" >=> GET >=> request(getExpenseReports expenseReportService)
             pathScan "/api/expense/%i" (fun expenseId ->
                 choose [
-                    GET >=> request(getExpenseReport expenseService expenseId)
-                    PUT >=> request(updateExpense expenseService)
+                    GET >=> request(getExpenseReport expenseReportService expenseId)
+                    PUT >=> request(updateExpense expenseReportService)
                 ])
             pathScan "/api/expense/%i/submit" (fun expenseId ->
-                    POST >=> request(submitExpenseReport expenseService expenseId)
+                    POST >=> request(submitExpenseReport expenseReportService expenseId)
                 )
             pathScan "/api/expense/%i/file" (fun expenseId ->
                 choose [
@@ -111,38 +111,41 @@ module Api =
                 ])
         ]
 
-    let part expenseService =
+    let part expenseReportService =
         Writers.setMimeType "application/json" >=>
             choose [
-                expenseApi expenseService
+                expenseApi expenseReportService
             ]
 
 module Web =
-    let expense expenseService =
+    let expense expenseReportService =
         choose [
             path "/expenses" >=>
                 choose [
-                    GET >=> OK (Expense.newExpense())
+                    GET >=> context(fun c ->
+                        let userName = getUserName c |> Option.get
+                        let expenseReports = expenseReportService.GetExpenseReports userName
+                        OK (ExpenseReportView.expenses expenseReports))
                 ]
             path "/expense"
                 >=> POST
                 >=> request(fun _ ->
-                    let er = expenseService.CreateExpenseReport "tomas"
+                    let er = expenseReportService.CreateExpenseReport "tomas"
                     Redirection.redirect (sprintf "/expense/%i" er.Id))
             pathScan "/expense/%i" (fun i ->
                     choose [
-                        GET >=> request(fun _ -> expenseService.GetExpenseReport i |> toJson |> OK)
+                        GET >=> request(fun _ -> expenseReportService.GetExpenseReport i |> toJson |> OK)
                         POST >=> OK "HELL"
                     ])
         ]
 
-    let part expenseService =
+    let part expenseReportService =
         Writers.setMimeType "text/html" >=>
             choose [
-                path "/" >=> (OK (Index()))
+                path "/" >=> (OK (Home.index()))
                 path "/logout" >=> context(fun c -> RequestErrors.UNAUTHORIZED "LoggedOut")
                 basicAuth <|
-                    expense expenseService
+                    expense expenseReportService
             ]
 
 module Content =
@@ -176,10 +179,10 @@ module Content =
         ]
 
 let app =
-    let expenseService = createExpenseService()
+    let expenseReportService = createExpenseReportService()
     choose [
         Content.part
-        Web.part expenseService
+        Web.part expenseReportService
         basicAuth <|
-            Api.part expenseService
+            Api.part expenseReportService
     ]

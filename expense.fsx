@@ -56,7 +56,7 @@ type ExpenseService = {
     GetExpenseReport: int -> ExpenseReport
 }
 
-let createExpenseService() =
+let createExpenseReportService() =
     let random = new Random()
     let agent = Agent.Start(fun inbox ->
         let rec loop state =
