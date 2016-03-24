@@ -146,7 +146,7 @@ let app =
                             Redirection.redirect (sprintf "/expense/%i" er.Id))
                     pathScan "/expense/%i" (fun i ->
                             choose [
-                                GET >=> request(fun _ -> expenseReportService.GetExpenseReport i |> toJson |> OK)
+                                GET >=> request(fun _ -> expenseReportService.GetExpenseReport i |> ExpenseReportView.details |> OK)
                                 POST >=> OK "HELL"
                             ])
                 ]

@@ -97,7 +97,7 @@ module ExpenseReportView =
                 expenseList expenseReports
             ]
 
-    let newExpense() =
+    let details expenseReport =
         renderPage <|
             [
                 divClass ["header-container"]
