@@ -42,6 +42,7 @@ module Security =
         c.userState |> Map.tryFind "userName" |> Option.map (fun x -> x.ToString())
 
 
+[<AutoOpen>]
 module FileIO =
     open System.IO
     let move src dest =
@@ -60,6 +61,7 @@ let saveFile expenseId httpFile =
     FileIO.move httpFile.tempFilePath (targetFilePath)
     fileId
 
+[<AutoOpen>]
 module Api =
     let getExpenseReport expenseReportService expenseId _ =
         expenseReportService.GetExpenseReport expenseId
@@ -94,60 +96,7 @@ module Api =
         let resultString = JsonConvert.SerializeObject(result)
         OK resultString
 
-    let expenseApi expenseReportService : WebPart =
-        choose [
-            path "/expenses" >=> GET >=> request(getExpenseReports expenseReportService)
-            pathScan "/api/expense/%i" (fun expenseId ->
-                choose [
-                    GET >=> request(getExpenseReport expenseReportService expenseId)
-                    PUT >=> request(updateExpense expenseReportService)
-                ])
-            pathScan "/api/expense/%i/submit" (fun expenseId ->
-                    POST >=> request(submitExpenseReport expenseReportService expenseId)
-                )
-            pathScan "/api/expense/%i/file" (fun expenseId ->
-                choose [
-                    POST >=> request(uploadFile expenseId)
-                ])
-        ]
-
-    let part expenseReportService =
-        Writers.setMimeType "application/json" >=>
-            choose [
-                expenseApi expenseReportService
-            ]
-
-module Web =
-    let expense expenseReportService =
-        choose [
-            path "/expenses" >=>
-                choose [
-                    GET >=> context(fun c ->
-                        let userName = getUserName c |> Option.get
-                        let expenseReports = expenseReportService.GetExpenseReports userName
-                        OK (ExpenseReportView.expenses expenseReports))
-                ]
-            path "/expense"
-                >=> POST
-                >=> request(fun _ ->
-                    let er = expenseReportService.CreateExpenseReport "tomas"
-                    Redirection.redirect (sprintf "/expense/%i" er.Id))
-            pathScan "/expense/%i" (fun i ->
-                    choose [
-                        GET >=> request(fun _ -> expenseReportService.GetExpenseReport i |> toJson |> OK)
-                        POST >=> OK "HELL"
-                    ])
-        ]
-
-    let part expenseReportService =
-        Writers.setMimeType "text/html" >=>
-            choose [
-                path "/" >=> (OK (Home.index()))
-                path "/logout" >=> context(fun c -> RequestErrors.UNAUTHORIZED "LoggedOut")
-                basicAuth <|
-                    expense expenseReportService
-            ]
-
+[<AutoOpen>]
 module Content =
     type ContentType =
         | JS
@@ -173,16 +122,50 @@ module Content =
             >=> OK (file (path + "." + fileEnding))
         )
 
-    let part =
-        choose [
-            pathScan "/content/%s.%s" readContent
-        ]
-
 let app =
     let expenseReportService = createExpenseReportService()
     choose [
-        Content.part
-        Web.part expenseReportService
+        pathScan "/content/%s.%s" readContent
+
+        choose [
+            path "/" >=> (OK (Home.index()))
+            path "/logout" >=> context(fun c -> RequestErrors.UNAUTHORIZED "LoggedOut")
+            basicAuth <|
+                choose [
+                    path "/expenses" >=>
+                        choose [
+                            GET >=> context(fun c ->
+                                let userName = getUserName c |> Option.get
+                                let expenseReports = expenseReportService.GetExpenseReports userName
+                                OK (ExpenseReportView.expenses expenseReports))
+                        ]
+                    path "/expense"
+                        >=> POST
+                        >=> request(fun _ ->
+                            let er = expenseReportService.CreateExpenseReport "tomas"
+                            Redirection.redirect (sprintf "/expense/%i" er.Id))
+                    pathScan "/expense/%i" (fun i ->
+                            choose [
+                                GET >=> request(fun _ -> expenseReportService.GetExpenseReport i |> toJson |> OK)
+                                POST >=> OK "HELL"
+                            ])
+                ]
+        ] >=> Writers.setMimeType "text/html"
+
         basicAuth <|
-            Api.part expenseReportService
+            choose [
+                path "/expenses" >=> GET >=> request(getExpenseReports expenseReportService)
+                pathScan "/api/expense/%i" (fun expenseId ->
+                    choose [
+                        GET >=> request(getExpenseReport expenseReportService expenseId)
+                        PUT >=> request(updateExpense expenseReportService)
+                    ])
+                pathScan "/api/expense/%i/submit" (fun expenseId ->
+                        POST >=> request(submitExpenseReport expenseReportService expenseId)
+                    )
+                pathScan "/api/expense/%i/file" (fun expenseId ->
+                    choose [
+                        POST >=> request(uploadFile expenseId)
+                    ])
+            ] >=> Writers.setMimeType "application/json"
     ]
