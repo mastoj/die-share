@@ -33,6 +33,15 @@ module Helpers =
         let json = System.Text.Encoding.UTF8.GetString(request.rawForm)
         JsonConvert.DeserializeObject<'T>(json)
 
+[<AutoOpen>]
+module Security =
+    let basicAuth =
+        Authentication.authenticateBasic (fun (x,y) -> x=y)
+
+    let getUserName (c:HttpContext) =
+        c.userState |> Map.tryFind "userName" |> Option.map (fun x -> x.ToString())
+
+
 module FileIO =
     open System.IO
     let move src dest =
@@ -130,8 +139,10 @@ module Web =
     let part expenseService =
         Writers.setMimeType "text/html" >=>
             choose [
-                expense expenseService
                 path "/" >=> (OK (Index()))
+                path "/logout" >=> context(fun c -> RequestErrors.UNAUTHORIZED "LoggedOut")
+                basicAuth <|
+                    expense expenseService
             ]
 
 module Content =
@@ -169,5 +180,6 @@ let app =
     choose [
         Content.part
         Web.part expenseService
-        Api.part expenseService
+        basicAuth <|
+            Api.part expenseService
     ]
