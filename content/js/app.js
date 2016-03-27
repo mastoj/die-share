@@ -1,3 +1,9 @@
+window.Handlebars.registerHelper('select', function( value, options ){
+        var $el = $('<select />').html( options.fn(this) );
+        $el.find('[value="' + value + '"]').attr({'selected':'selected'});
+        return $el.html();
+});
+
 (function() {
     var readFile = function(path, file, continuation) {
         var formData = new FormData()
@@ -59,7 +65,20 @@
 
 document.addEventListener("DOMContentLoaded", function(event) {
     var uploadPath = '/api/expense/' + 4 + '/file'
-    var fileUploaders = document.getElementsByClassName("file-uploader");
-    const expense = DS.expense(document.getElementById("expense-form"))
-    DS.createFileUploader(fileUploaders[0], uploadPath, function(d){expense.addFile(d)})
+    var fileUploaders = document.getElementsByClassName("file-uploader")
+    const expenseContainer = DS.expense(document.getElementById("expense-form"))
+    var expenseId = window.location.pathname.split( '/' )[2]
+    fetch('/api/expense/' + expenseId, {
+	       method: 'get',
+           headers: {
+               'Authorization': 'Basic ' + btoa("tomas:tomas")
+           }
+    }).then(function(response) {
+    	console.log(response)
+        response.json().then(function(d) {console.log(d)})
+    }).catch(function(err) {
+        console.log(err)
+    });
+    console.log(expenseId)
+//    DS.createFileUploader(fileUploaders[0], uploadPath, function(d){expense.addFile(d)})
 })

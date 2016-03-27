@@ -46,14 +46,14 @@ type Messages =
     | UpdateExpenseReport of ExpenseReport
     | SubmitExpenseReport of int
     | GetExpenseReports of string * AsyncReplyChannel<ExpenseReport list>
-    | GetExpenseReport of int * AsyncReplyChannel<ExpenseReport>
+    | GetExpenseReport of int * AsyncReplyChannel<ExpenseReport option>
 
 type ExpenseService = {
     CreateExpenseReport: string -> ExpenseReport
     UpdateExpenseReport: ExpenseReport -> unit
     SubmitExpenseReport: int -> unit
     GetExpenseReports: string -> ExpenseReport list
-    GetExpenseReport: int -> ExpenseReport
+    GetExpenseReport: int -> ExpenseReport option
 }
 
 let createExpenseReportService() =
@@ -62,6 +62,7 @@ let createExpenseReportService() =
         let rec loop state =
             async {
                 let! message = inbox.Receive()
+                printfn "Got message: %A" message
                 match message with
                 | CreateExpenseReport (user, reply) ->
                     let id = random.Next(99999)
@@ -82,7 +83,7 @@ let createExpenseReportService() =
                     reply.Reply(ers)
                     return! loop state
                 | GetExpenseReport (id, reply) ->
-                    let er = state |> Map.find id
+                    let er = state |> Map.tryFind id
                     reply.Reply(er)
                     return! loop state
             }

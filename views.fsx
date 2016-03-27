@@ -28,8 +28,9 @@ module Layout =
             metaAttr ["name","viewport"; "content","width=device-width, initial-scale=1.0"]
             cssLink "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"
             cssLink "http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css"
-            cssLink "content/css/site.css"
-            jsLink "content/js/app.js"
+            cssLink "/content/css/site.css"
+
+            jsLink "http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars.runtime-v4.0.5.js"
           ]
           body [
             headerMenu
@@ -97,34 +98,44 @@ module ExpenseReportView =
                 expenseList expenseReports
             ]
 
+    let handlebar templateName node =
+        scriptAttr ["id",templateName; "type","text/x-handlebars-template"] [node]
+
     let details expenseReport =
         renderPage <|
             [
+                jsLink "/content/js/app.js"
                 divClass ["header-container"]
                     [h1 (text "File new expense")]
-                formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action","/expenses";"enctype","multipart/form-data"]
-                    [
-                        fieldset
-                            [
-                                divClass ["pure-g"]
-                                    [
-                                        (inputElem
-                                            // Project
-                                            (labelAttr ["for","project"] (text "Project"))
-                                            (selectAttr ["name", "project";"class","pure-input-1-4"]
-                                                (getProjects |> List.map (fun x -> option (text x)))))
+                divAttr ["id","expense-form-container"] []
+                handlebar "expense-form-template" <|
+                    formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action","/expenses";"enctype","multipart/form-data"]
+                        [
+                            fieldset
+                                [
+                                    divClass ["pure-g"]
+                                        [
+                                            (inputElem
+                                                // Project
+                                                (labelAttr ["for","project"] (text "Project"))
+                                                (selectAttr ["name", "project";"class","pure-input-1-4"]
+                                                    ([
+                                                        (text "{{#select Project}}")
+                                                        (getProjects |> List.map (fun x -> option (text x)))
+                                                        (text "{{/select}}")
+                                                     ] |> List.concat)))
 
-                                        (inputElem
-                                        // Description
-                                            (labelAttr ["for","description"] (text "Description"))
-                                            (inputAttr ["name", "description";"class","pure-input-1-4"]))
+                                            (inputElem
+                                            // Description
+                                                (labelAttr ["for","description"] (text "Description"))
+                                                (inputAttr ["name", "description";"class","pure-input-1-4";"value","{{description}}"]))
 
-                                        (inputElem
-                                            (labelAttr ["for","file"] (text "Files"))
-                                            (div [inputAttr ["type","file";"name","file";"class","pure-input-1-4 file-uploader"]]))
-                                    ]
+                                            (inputElem
+                                                (labelAttr ["for","file"] (text "Files"))
+                                                (div [inputAttr ["type","file";"name","file";"class","pure-input-1-4 file-uploader"]]))
+                                        ]
 
-                                buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")
-                            ]
-                    ]
+                                    buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")
+                                ]
+                        ]
             ]

@@ -65,8 +65,13 @@ let saveFile expenseId httpFile =
 module Api =
     let getExpenseReport expenseReportService expenseId _ =
         expenseReportService.GetExpenseReport expenseId
-        |> toJson
-        |> OK
+        |> (function
+            | Some er ->
+                er
+                |> toJson
+                |> OK
+            | None ->
+                RequestErrors.NOT_FOUND "Not found")
 
     let submitExpenseReport expenseReportService id _ =
         expenseReportService.SubmitExpenseReport id
@@ -146,7 +151,14 @@ let app =
                             Redirection.redirect (sprintf "/expense/%i" er.Id))
                     pathScan "/expense/%i" (fun i ->
                             choose [
-                                GET >=> request(fun _ -> expenseReportService.GetExpenseReport i |> ExpenseReportView.details |> OK)
+                                GET >=> request(fun _ ->
+                                            expenseReportService.GetExpenseReport i
+                                            |> (function
+                                                    | Some er ->
+                                                        er
+                                                        |> ExpenseReportView.details
+                                                        |> OK
+                                                    | None -> Suave.RequestErrors.NOT_FOUND "No matching expense report"))
                                 POST >=> OK "HELL"
                             ])
                 ]

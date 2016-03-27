@@ -9,9 +9,9 @@ open Suave.State.CookieStateStore
 open Suave.State
 open Suave.Html
 
-let scrtip2Attr attr = tag "script" attr empty
+let script2Attr attr = tag "script" attr empty
 
-let jsLink src = scrtip2Attr ["src", src]
+let jsLink src = script2Attr ["src", src]
 let cssLink href = linkAttr [ "href", href; " rel", "stylesheet"; " type", "text/css" ]
 let divClass classes = divAttr ["class", (classes |> String.concat " ") ]
 
