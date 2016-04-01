@@ -38,7 +38,8 @@ module Layout =
             cssLink "http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css"
             cssLink "/content/css/site.css"
 
-            jsLink "http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars.runtime-v4.0.5.js"
+            jsLink "https://code.jquery.com/jquery-2.2.2.min.js"
+            jsLink "http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v4.0.5.js"
           ]
           body [
             headerMenu
@@ -136,7 +137,7 @@ module ExpenseReportView =
                                             (inputElem
                                             // Description
                                                 (labelAttr ["for","description"] (text "Description"))
-                                                (inputAttr ["name", "description";"class","pure-input-1-4";"value","{{description}}"]))
+                                                (inputAttr ["name", "description";"class","pure-input-1-4";"value","{{Description}}"]))
 
                                             (inputElem
                                                 (labelAttr ["for","file"] (text "Files"))

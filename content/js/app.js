@@ -67,7 +67,9 @@ window.Handlebars.registerHelper('select', function( value, options ){
 document.addEventListener("DOMContentLoaded", function(event) {
     var uploadPath = '/api/expense/' + 4 + '/file'
     var fileUploaders = document.getElementsByClassName("file-uploader")
-    const expenseContainer = DS.expense(document.getElementById("expense-form"))
+
+    const expenseContainer = document.getElementById("expense-form-container")
+//    const expenseContainer = DS.expense(document.getElementById("expense-form-container"))
     var expenseId = window.location.pathname.split( '/' )[2]
     fetch('/api/expense/' + expenseId, {
 	       method: 'get',
@@ -76,7 +78,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
            }
     }).then(function(response) {
     	console.log(response)
-        response.json().then(function(d) {console.log(d)})
+        response.json().then(function(d) {
+            var source = document.getElementById("expense-form-template").innerHTML;
+            var template = Handlebars.compile(source)
+            var html = template(d)
+            expenseContainer.innerHTML = html
+            console.log(d)
+        })
     }).catch(function(err) {
         console.log(err)
     });
