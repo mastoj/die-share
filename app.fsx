@@ -41,6 +41,10 @@ module Security =
     let getUserName (c:HttpContext) =
         c.userState |> Map.tryFind "userName" |> Option.map (fun x -> x.ToString())
 
+    let getAuthHeader (c:HttpContext) =
+        match c.request.header "authorization" with
+        | Choice1Of2 s -> Some s
+        | _ -> None
 
 [<AutoOpen>]
 module FileIO =
@@ -142,7 +146,7 @@ let app =
                             GET >=> context(fun c ->
                                 let userName = getUserName c |> Option.get
                                 let expenseReports = expenseReportService.GetExpenseReports userName
-                                OK (ExpenseReportView.expenses expenseReports))
+                                OK (ExpenseReportView.expenses (getAuthHeader c) expenseReports))
                         ]
                     path "/expense"
                         >=> POST
@@ -151,12 +155,12 @@ let app =
                             Redirection.redirect (sprintf "/expense/%i" er.Id))
                     pathScan "/expense/%i" (fun i ->
                             choose [
-                                GET >=> request(fun _ ->
+                                GET >=> context(fun c ->
                                             expenseReportService.GetExpenseReport i
                                             |> (function
                                                     | Some er ->
                                                         er
-                                                        |> ExpenseReportView.details
+                                                        |> ExpenseReportView.details (getAuthHeader c)
                                                         |> OK
                                                     | None -> Suave.RequestErrors.NOT_FOUND "No matching expense report"))
                                 POST >=> OK "HELL"

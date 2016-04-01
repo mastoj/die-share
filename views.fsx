@@ -20,9 +20,17 @@ module Layout =
                     ]
             ]
 
-    let render content =
+    let render authHeader content =
+        let authScript =
+            match authHeader with
+            | None -> ""
+            | Some basicToken -> sprintf "(function() { window.DS = window.DS || {}; DS.auth = '%s';})();" basicToken
+
         html [
           head [
+
+            script (text authScript)
+
             title "Die-Share"
             metaAttr ["charset","utf-8"]
             metaAttr ["name","viewport"; "content","width=device-width, initial-scale=1.0"]
@@ -38,8 +46,8 @@ module Layout =
           ]
         ] |> renderHtmlDocument
 
-    let renderPage page =
-        render <|
+    let renderPage authHeader page =
+        render authHeader <|
             divClass ["layout"] page
 
 module Home =
@@ -54,7 +62,7 @@ module Home =
                 ]
 
     let index() =
-        render <|
+        render None <|
             div
                 [
                     divClass ["banner"]
@@ -90,8 +98,8 @@ module ExpenseReportView =
     let expenseList expenseReports =
         ulAttr ["class", "expense-report-list"] (expenseReports |> List.map expenseListItem)
 
-    let expenses expenseReports =
-        renderPage <|
+    let expenses authHeader expenseReports =
+        renderPage authHeader <|
             [
                 h1 (text "Expenses")
                 formAttr ["method","post";"action","/expense"] [buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "New expense report")]
@@ -101,8 +109,8 @@ module ExpenseReportView =
     let handlebar templateName node =
         scriptAttr ["id",templateName; "type","text/x-handlebars-template"] [node]
 
-    let details expenseReport =
-        renderPage <|
+    let details authHeader expenseReport =
+        renderPage authHeader <|
             [
                 jsLink "/content/js/app.js"
                 divClass ["header-container"]

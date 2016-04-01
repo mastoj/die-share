@@ -1,3 +1,5 @@
+DS = DS || {}
+
 window.Handlebars.registerHelper('select', function( value, options ){
         var $el = $('<select />').html( options.fn(this) );
         $el.find('[value="' + value + '"]').attr({'selected':'selected'});
@@ -23,7 +25,6 @@ window.Handlebars.registerHelper('select', function( value, options ){
         }
         xhttp.send(formData)
     }
-    DS = {}
     DS.createFileUploader = function(elem, uploadPath, continuation) {
         const uploadFn = resolve => {
             return e => {
@@ -71,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     fetch('/api/expense/' + expenseId, {
 	       method: 'get',
            headers: {
-               'Authorization': 'Basic ' + btoa("tomas:tomas")
+               'Authorization': DS.auth
            }
     }).then(function(response) {
     	console.log(response)
