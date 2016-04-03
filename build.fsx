@@ -11,7 +11,7 @@ open Microsoft.FSharp.Compiler.Interactive.Shell
 
 let sbOut = new Text.StringBuilder()
 let sbErr = new Text.StringBuilder()
-let projectRoot = __SOURCE_DIRECTORY__ 
+let projectRoot = __SOURCE_DIRECTORY__
 
 let fsiSession =
   let inStream = new StringReader("")

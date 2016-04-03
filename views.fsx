@@ -20,17 +20,9 @@ module Layout =
                     ]
             ]
 
-    let render authHeader content =
-        let authScript =
-            match authHeader with
-            | None -> ""
-            | Some basicToken -> sprintf "(function() { window.DS = window.DS || {}; DS.auth = '%s';})();" basicToken
-
+    let render content =
         html [
           head [
-
-            script (text authScript)
-
             title "Die-Share"
             metaAttr ["charset","utf-8"]
             metaAttr ["name","viewport"; "content","width=device-width, initial-scale=1.0"]
@@ -47,8 +39,8 @@ module Layout =
           ]
         ] |> renderHtmlDocument
 
-    let renderPage authHeader page =
-        render authHeader <|
+    let renderPage page =
+        render <|
             divClass ["layout"] page
 
 module Home =
@@ -63,7 +55,7 @@ module Home =
                 ]
 
     let index() =
-        render None <|
+        render <|
             div
                 [
                     divClass ["banner"]
@@ -99,8 +91,8 @@ module ExpenseReportView =
     let expenseList expenseReports =
         ulAttr ["class", "expense-report-list"] (expenseReports |> List.map expenseListItem)
 
-    let expenses authHeader expenseReports =
-        renderPage authHeader <|
+    let expenses expenseReports =
+        renderPage <|
             [
                 h1 (text "Expenses")
                 formAttr ["method","post";"action","/expense"] [buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "New expense report")]
@@ -110,8 +102,8 @@ module ExpenseReportView =
     let handlebar templateName node =
         scriptAttr ["id",templateName; "type","text/x-handlebars-template"] [node]
 
-    let details authHeader expenseReport =
-        renderPage authHeader <|
+    let details expenseReport =
+        renderPage <|
             [
                 jsLink "/content/js/app.js"
                 divClass ["header-container"]
@@ -127,7 +119,7 @@ module ExpenseReportView =
                                             (inputElem
                                                 // Project
                                                 (labelAttr ["for","project"] (text "Project"))
-                                                (selectAttr ["name", "project";"class","pure-input-1-4"]
+                                                (selectAttr ["name", "Project";"class","pure-input-1-4"]
                                                     ([
                                                         (text "{{#select Project}}")
                                                         (getProjects |> List.map (fun x -> option (text x)))
@@ -137,11 +129,11 @@ module ExpenseReportView =
                                             (inputElem
                                             // Description
                                                 (labelAttr ["for","description"] (text "Description"))
-                                                (inputAttr ["name", "description";"class","pure-input-1-4";"value","{{Description}}"]))
+                                                (inputAttr ["name", "Description"; "type", "text";"class","pure-input-1-4";"value","{{Description}}"]))
 
                                             (inputElem
                                                 (labelAttr ["for","file"] (text "Files"))
-                                                (div [inputAttr ["type","file";"name","file";"class","pure-input-1-4 file-uploader"]]))
+                                                (div [inputAttr ["type","file";"name","File";"class","pure-input-1-4 file-uploader"]]))
                                         ]
 
                                     buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")

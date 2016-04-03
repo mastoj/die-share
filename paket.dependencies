@@ -4,6 +4,7 @@ nuget Suave
 nuget Suave.Experimental
 nuget Akka
 nuget Akka.FSharp
+nuget FSharp.Core
 nuget FSharp.Data
 nuget FAKE
 nuget FSharp.Compiler.Service

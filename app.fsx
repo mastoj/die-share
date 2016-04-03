@@ -1,6 +1,7 @@
 #load "references.fsx"
 #load "expense.fsx"
 #load "views.fsx"
+#load "authentication.fsx"
 
 open Newtonsoft.Json
 open Suave
@@ -17,6 +18,7 @@ open System.IO
 
 open Expense
 open Views
+open Authentication
 
 [<AutoOpen>]
 module WebModels =
@@ -34,17 +36,58 @@ module Helpers =
         JsonConvert.DeserializeObject<'T>(json)
 
 [<AutoOpen>]
-module Security =
+module Authentication =
+    open Suave.Authentication
+    open Suave.Utils
+    open Suave.RequestErrors
+    open Suave.Cookie
+//
+//    let AuthCookieKey = "_DS_AUTH"
+//    let UserNameKey = "userName"
+//    let inline private addUserName username ctx = { ctx with userState = ctx.userState |> Map.add UserNameKey (box username) }
+//
+//    let internal parseAuthenticationToken (token : string) =
+//        let parts = token.Split (' ')
+//        let enc = parts.[1].Trim()
+//        let decoded = ASCII.decodeBase64 enc
+//        let indexOfColon = decoded.IndexOf(':')
+//        (parts.[0].ToLower(), decoded.Substring(0,indexOfColon), decoded.Substring(indexOfColon+1))
+//
+//    let authenticateBasic f (ctx:HttpContext) =
+//        let req = ctx.request
+//        match req.header "authorization" with
+//            | Choice1Of2 header ->
+//                let (typ, username, password) = parseAuthenticationToken header
+//                if (typ.Equals("basic")) && f (username,password) then
+//                    ASCII.bytes header |> Choice1Of2
+//                else
+//                    challenge |> Choice2Of2
+//            | Choice2Of2 _ ->
+//                challenge |> Choice2Of2
+//
+//    let basicAuthWithCookie relativeExpiry secure authFun (protectedPart:WebPart) =
+//        let continuation =
+//            context(fun ctx ->
+//                match ctx.response.cookies |> readCookies ctx.runtime.serverKey "auth" with
+//                | Choice1Of2 (cookie, valBytes) ->
+//                    valBytes
+//                    |> ASCII.toString
+//                    |> parseAuthenticationToken
+//                    |> (fun(_,userName,_) -> addUserName userName ctx)
+//                    |> (fun ctx' -> (fun _ -> protectedPart ctx'))
+//                | Choice2Of2 _ -> challenge)
+//        context(fun ctx ->
+//            Suave.Authentication.authenticate relativeExpiry secure
+//                (fun() -> authenticateBasic authFun ctx)
+//                (sprintf "%A" >> RequestErrors.BAD_REQUEST >> Choice2Of2)
+//                continuation
+//            )
+
     let basicAuth =
-        Authentication.authenticateBasic (fun (x,y) -> x=y)
+        authenticateBasicWithCookie Suave.Cookie.CookieLife.Session false (fun (x,y) -> x=y)
 
     let getUserName (c:HttpContext) =
         c.userState |> Map.tryFind "userName" |> Option.map (fun x -> x.ToString())
-
-    let getAuthHeader (c:HttpContext) =
-        match c.request.header "authorization" with
-        | Choice1Of2 s -> Some s
-        | _ -> None
 
 [<AutoOpen>]
 module FileIO =
@@ -146,7 +189,7 @@ let app =
                             GET >=> context(fun c ->
                                 let userName = getUserName c |> Option.get
                                 let expenseReports = expenseReportService.GetExpenseReports userName
-                                OK (ExpenseReportView.expenses (getAuthHeader c) expenseReports))
+                                OK (ExpenseReportView.expenses expenseReports))
                         ]
                     path "/expense"
                         >=> POST
@@ -160,7 +203,7 @@ let app =
                                             |> (function
                                                     | Some er ->
                                                         er
-                                                        |> ExpenseReportView.details (getAuthHeader c)
+                                                        |> ExpenseReportView.details
                                                         |> OK
                                                     | None -> Suave.RequestErrors.NOT_FOUND "No matching expense report"))
                                 POST >=> OK "HELL"
