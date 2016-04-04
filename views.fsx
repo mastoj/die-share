@@ -72,10 +72,37 @@ module Home =
                         ]
                 ]
 
-module ExpenseReportView =
+[<AutoOpen>]
+module FormHelpers =
     let inputElem label inputEl =
         divClass ["pure-u-1"] [label; inputEl]
 
+module AuthenticationView =
+    let index() =
+        renderPage <|
+            [
+                formAttr ["class", "pure-form pure-form-stacked";"method","post";"action","/login";"enctype","multipart/x-www-form-urlencoded"]
+                    [
+                        fieldset
+                            [
+                                divClass ["pure-g"]
+                                    [
+                                        (inputElem
+                                        // Description
+                                            (labelAttr ["for","UserName"] (text "Name"))
+                                            (inputAttr ["name", "UserName"; "type", "text";"class","pure-input-1-4"]))
+
+                                        (inputElem
+                                            (labelAttr ["for","Password"] (text "Password"))
+                                            (div [inputAttr ["type","password";"name","Password";"class","pure-input-1-4"]]))
+                                    ]
+
+                                buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Logon")
+                            ]
+                    ]
+            ]
+
+module ExpenseReportView =
     let getProjects = ["Rock"; "Paper"; "Scissor"; "Lizard"; "Spock"]
 
     let expenseListItem expenseReport =

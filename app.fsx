@@ -83,8 +83,28 @@ module Authentication =
 //                continuation
 //            )
 
+    let getAuthCookie() =
+        Choice2Of2 "tomas"
+
+    let updateAuthCookie userName = ()
+    let addUserNameToState userName = ()
+
     let basicAuth =
-        authenticateBasicWithCookie Suave.Cookie.CookieLife.Session false (fun (x,y) -> x=y)
+        authenticateForms (Redirection.redirect ("/login"))
+//        Suave.Authentication.authenticate Suave.Cookie.CookieLife.Session false
+//
+//        context(fun c ->
+//            printfn "Hello"
+//            getAuthCookie()
+//            |> (function
+//                | Choice1Of2 userName ->
+//                    updateAuthCookie userName
+//                    addUserNameToState userName
+//                    printfn "loggedIn: %A" userName
+//                    protectedPart
+//                | Choice2Of2 _ -> Redirection.redirect ("/login"))
+//        )
+//        authenticateBasicWithCookie Suave.Cookie.CookieLife.Session false (fun (x,y) -> x=y)
 
     let getUserName (c:HttpContext) =
         c.userState |> Map.tryFind "userName" |> Option.map (fun x -> x.ToString())
@@ -181,7 +201,12 @@ let app =
 
         choose [
             path "/" >=> (OK (Home.index()))
-            path "/logout" >=> context(fun c -> RequestErrors.UNAUTHORIZED "LoggedOut")
+            path "/login" >=>
+                choose [
+                    GET >=> OK (AuthenticationView.index())
+                    POST >=> logonUser
+                ]
+            path "/logout" >=> logout >=> (Redirection.redirect "/")
             basicAuth <|
                 choose [
                     path "/expenses" >=>
