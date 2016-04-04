@@ -1,0 +1,8 @@
+Todos:
+* Add file to form
+* Structure code
+* Split into demo parts
+* Make snippets
+* Practice
+* Practice
+* Practice
