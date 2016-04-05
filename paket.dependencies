@@ -1,7 +1,8 @@
 source https://www.nuget.org/api/v2
+//source https://ci.appveyor.com/nuget/suave-wwf4q3qudake
 
-nuget Suave
-nuget Suave.Experimental
+nuget Suave 1.1.2
+nuget Suave.Experimental 1.1.2
 nuget Akka
 nuget Akka.FSharp
 nuget FSharp.Core

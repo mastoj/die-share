@@ -21,14 +21,6 @@ open Views
 open Authentication
 
 [<AutoOpen>]
-module WebModels =
-    type FileUploadResult = {
-        FileId: int
-        FileName: string
-        MimeType: string
-    }
-
-[<AutoOpen>]
 module Helpers =
     let toJson value = JsonConvert.SerializeObject(value)
     let fromJson<'T> (request:HttpRequest) =
@@ -144,8 +136,8 @@ let app =
                         ]
                     path "/expense"
                         >=> POST
-                        >=> request(fun _ ->
-                            let er = expenseReportService.CreateExpenseReport "tomas"
+                        >=> context(fun c ->
+                            let er = expenseReportService.CreateExpenseReport (getUserName c |> Option.get)
                             Redirection.redirect (sprintf "/expense/%i" er.Id))
                     pathScan "/expense/%i" (fun i ->
                             choose [

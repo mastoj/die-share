@@ -8,21 +8,21 @@ NUGET
       FsPickler (>= 1.2.21)
       FSPowerPack.Core.Community (>= 3.0.0)
       FSPowerPack.Linq.Community (>= 3.0.0)
-    FAKE (4.21.4)
-    FSharp.Compiler.Service (2.0.0.6)
+    FAKE (4.23.1)
+    FSharp.Compiler.Service (2.0.0.8)
     FSharp.Core (4.0.0.1)
     FSharp.Data (2.2.5)
       Zlib.Portable (>= 1.10.0) - framework: portable-net40+sl50+wp80+win80
-    FsPickler (1.8.0)
+    FsPickler (2.0.0)
     FSPowerPack.Core.Community (3.0.0)
     FSPowerPack.Linq.Community (3.0.0)
       FSPowerPack.Core.Community
-    Newtonsoft.Json (8.0.2)
-    Suave (1.1.1)
+    Newtonsoft.Json (8.0.3)
+    Suave (1.1.2)
       FSharp.Core (>= 3.1.2.5)
-    Suave.Experimental (1.1.1)
+    Suave.Experimental (1.1.2)
       FSharp.Core (>= 3.1.2.5)
-      Suave (>= 1.1.1)
+      Suave (>= 1.1.2)
     Zlib.Portable (1.11.0) - framework: portable-net40+sl50+wp80+win80
 GIST
   remote: mastoj/43331973297ae3a8da8b

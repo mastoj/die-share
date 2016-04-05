@@ -6,3 +6,12 @@ Todos:
 * Practice
 * Practice
 * Practice
+
+Demo:
+    * Hello world
+    * Static content
+    * Start
+    * Routes
+    * Authorization
+    * File expense
+    

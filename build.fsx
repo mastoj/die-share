@@ -72,6 +72,7 @@ Target "run" (fun _ ->
       !! (projectRoot @@ "*.*")
       -- (projectRoot @@ ".*")
       -- (projectRoot @@ "run.log")
+      -- (projectRoot @@ "uploads")
     |> WatchChangesWithOptions {IncludeSubdirectories = false} (fun x -> printfn "Changes: %A" x; reloadAppServer())
 
   use folderWatcher =

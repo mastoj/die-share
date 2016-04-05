@@ -91,10 +91,25 @@ window.Handlebars.registerHelper('select', function( value, options ){
         })
     }
 
+    const addFile = (data, rerender) => {
+        model.data.Expenses.push({File: data, Amount: 0})
+        console.log("File save", model.data)
+        save(model.data)
+        rerender()
+    }
+
     const reload = rerender => e => {
+        var amounts = model.container.querySelectorAll(".file-amount")
+        amounts.map(function(amountField){
+            var id = amountField.id.split("_")[1]
+            var expense = model.data.Expenses.filter(function(e){return e.File.FileId == id})[0].Amount = amountField.value
+        })
+        console.log(amounts)
+        console.log(model.data.Expenses)
         model.data = {
+            User: model.data.User,
             Description: model.container.querySelector("input[name='Description']").value,
-            Expenses: [],
+            Expenses: model.data.Expenses,
             Id: model.data.Id,
             Project: model.container.querySelector("select[name='Project']").value,
             Status: model.data.Status
@@ -104,13 +119,16 @@ window.Handlebars.registerHelper('select', function( value, options ){
         rerender()
     }
 
-    var attachListeners = (container, rerender) => {
+    var attachListeners = (container, data, rerender) => {
         container.querySelectorAll("input[type=text]").map(function(e) {
             e.addEventListener("change", reload(rerender))
         })
         container.getElementsByTagName("select").map(function(e) {
             e.addEventListener("change", reload(rerender))
         })
+        var uploadPath = '/api/expense/' + data.Id + '/file'
+        var fileUploaders = container.getElementsByClassName("file-uploader")
+        DS.createFileUploader(fileUploaders[0], uploadPath, function(d){addFile(d, rerender)})
     }
 
     var render = () => {
@@ -118,7 +136,7 @@ window.Handlebars.registerHelper('select', function( value, options ){
         var template = Handlebars.compile(source)
         var html = template(model.data)
         model.container.innerHTML = html
-        attachListeners(model.container, render)
+        attachListeners(model.container, model.data, render)
     }
 
     Expense = {
@@ -131,9 +149,6 @@ window.Handlebars.registerHelper('select', function( value, options ){
 })()
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    var uploadPath = '/api/expense/' + 4 + '/file'
-    var fileUploaders = document.getElementsByClassName("file-uploader")
-
     const expenseContainer = document.getElementById("expense-form-container")
 //    const expenseContainer = DS.expense(document.getElementById("expense-form-container"))
     var expenseId = window.location.pathname.split( '/' )[2]

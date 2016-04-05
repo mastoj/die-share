@@ -16,7 +16,8 @@ module Layout =
                 ulAttr ["class","pure-menu-list"]
                     [
                         for x in ["Expenses"; "Travels"; "Do not click this"] do
-                            yield liAttr ["class","pure-menu-item"] [(aAttr "#" ["class","pure-menu-link"] (text x))]
+                            let link = sprintf "/%s" (x.ToLower())
+                            yield liAttr ["class","pure-menu-item"] [(aAttr link ["class","pure-menu-link"] (text x))]
                     ]
             ]
 
@@ -112,7 +113,7 @@ module ExpenseReportView =
                 a (sprintf "/expense/%i" expenseReport.Id)
                     [
                         spanAttr ["class", "expense-report-item-title"] (text expenseReport.Description)
-                        spanAttr ["class", "expense-report-item-amount"] (text (sprintf " - %i" (expenseReport.Expenses |> List.sumBy (fun x -> x.Amount))))
+                        spanAttr ["class", "expense-report-item-amount"] (text (sprintf " - %i kr" (expenseReport.Expenses |> List.sumBy (fun x -> x.Amount))))
                     ]
             ]
 
@@ -158,6 +159,16 @@ module ExpenseReportView =
                                             // Description
                                                 (labelAttr ["for","description"] (text "Description"))
                                                 (inputAttr ["name", "Description"; "type", "text";"class","pure-input-1-4";"value","{{Description}}"]))
+
+                                            ulAttr ["class","file-list pure-u-1"]
+                                                (text """
+                                                {{#each Expenses}}
+                                                    <li>
+                                                        <span class="file-name">{{this.File.FileId}}: {{this.File.FileName}}</span>
+                                                        <input type="text" class="file-amount" value="{{this.Amount}}" id="file_{{this.File.FileId}}"></input>
+                                                    </li>
+                                                {{/each}}
+                                                """)
 
                                             (inputElem
                                                 (labelAttr ["for","file"] (text "Files"))

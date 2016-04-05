@@ -18,6 +18,9 @@ let divClass classes = divAttr ["class", (classes |> String.concat " ") ]
 let ulAttr = tag "ul"
 let ul = ulAttr [ ]
 
+let aAttr href attr = tag "a" (("href",href)::attr)
+let a href = aAttr href []
+
 let liAttr = tag "li"
 let li = liAttr [ ]
 
@@ -26,7 +29,6 @@ let h1 = h1Attr [ ]
 
 let h2Attr = tag "h2"
 let h2 = h2Attr [ ]
-
 
 let formAttr = tag "form"
 let form = formAttr []
