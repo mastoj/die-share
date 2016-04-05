@@ -78,10 +78,11 @@ module FormHelpers =
         divClass ["pure-u-1"] [label; inputEl]
 
 module AuthenticationView =
-    let index() =
+    let index returnUrl =
+        let postUrl = sprintf "/login?returnurl=%s" returnUrl
         renderPage <|
             [
-                formAttr ["class", "pure-form pure-form-stacked";"method","post";"action","/login";"enctype","multipart/x-www-form-urlencoded"]
+                formAttr ["class", "pure-form pure-form-stacked";"method","post";"action",postUrl;"enctype","multipart/x-www-form-urlencoded"]
                     [
                         fieldset
                             [

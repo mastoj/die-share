@@ -36,80 +36,6 @@ module Helpers =
         JsonConvert.DeserializeObject<'T>(json)
 
 [<AutoOpen>]
-module Authentication =
-    open Suave.Authentication
-    open Suave.Utils
-    open Suave.RequestErrors
-    open Suave.Cookie
-//
-//    let AuthCookieKey = "_DS_AUTH"
-//    let UserNameKey = "userName"
-//    let inline private addUserName username ctx = { ctx with userState = ctx.userState |> Map.add UserNameKey (box username) }
-//
-//    let internal parseAuthenticationToken (token : string) =
-//        let parts = token.Split (' ')
-//        let enc = parts.[1].Trim()
-//        let decoded = ASCII.decodeBase64 enc
-//        let indexOfColon = decoded.IndexOf(':')
-//        (parts.[0].ToLower(), decoded.Substring(0,indexOfColon), decoded.Substring(indexOfColon+1))
-//
-//    let authenticateBasic f (ctx:HttpContext) =
-//        let req = ctx.request
-//        match req.header "authorization" with
-//            | Choice1Of2 header ->
-//                let (typ, username, password) = parseAuthenticationToken header
-//                if (typ.Equals("basic")) && f (username,password) then
-//                    ASCII.bytes header |> Choice1Of2
-//                else
-//                    challenge |> Choice2Of2
-//            | Choice2Of2 _ ->
-//                challenge |> Choice2Of2
-//
-//    let basicAuthWithCookie relativeExpiry secure authFun (protectedPart:WebPart) =
-//        let continuation =
-//            context(fun ctx ->
-//                match ctx.response.cookies |> readCookies ctx.runtime.serverKey "auth" with
-//                | Choice1Of2 (cookie, valBytes) ->
-//                    valBytes
-//                    |> ASCII.toString
-//                    |> parseAuthenticationToken
-//                    |> (fun(_,userName,_) -> addUserName userName ctx)
-//                    |> (fun ctx' -> (fun _ -> protectedPart ctx'))
-//                | Choice2Of2 _ -> challenge)
-//        context(fun ctx ->
-//            Suave.Authentication.authenticate relativeExpiry secure
-//                (fun() -> authenticateBasic authFun ctx)
-//                (sprintf "%A" >> RequestErrors.BAD_REQUEST >> Choice2Of2)
-//                continuation
-//            )
-
-    let getAuthCookie() =
-        Choice2Of2 "tomas"
-
-    let updateAuthCookie userName = ()
-    let addUserNameToState userName = ()
-
-    let basicAuth =
-        authenticateForms (Redirection.redirect ("/login"))
-//        Suave.Authentication.authenticate Suave.Cookie.CookieLife.Session false
-//
-//        context(fun c ->
-//            printfn "Hello"
-//            getAuthCookie()
-//            |> (function
-//                | Choice1Of2 userName ->
-//                    updateAuthCookie userName
-//                    addUserNameToState userName
-//                    printfn "loggedIn: %A" userName
-//                    protectedPart
-//                | Choice2Of2 _ -> Redirection.redirect ("/login"))
-//        )
-//        authenticateBasicWithCookie Suave.Cookie.CookieLife.Session false (fun (x,y) -> x=y)
-
-    let getUserName (c:HttpContext) =
-        c.userState |> Map.tryFind "userName" |> Option.map (fun x -> x.ToString())
-
-[<AutoOpen>]
 module FileIO =
     open System.IO
     let move src dest =
@@ -203,11 +129,11 @@ let app =
             path "/" >=> (OK (Home.index()))
             path "/login" >=>
                 choose [
-                    GET >=> OK (AuthenticationView.index())
-                    POST >=> logonUser
+                    GET >=> request(fun r -> OK (AuthenticationView.index (Authentication.getReturnUrl r)))
+                    POST >=> loginUser
                 ]
             path "/logout" >=> logout >=> (Redirection.redirect "/")
-            basicAuth <|
+            Authentication.protect <|
                 choose [
                     path "/expenses" >=>
                         choose [
@@ -236,7 +162,7 @@ let app =
                 ]
         ] >=> Writers.setMimeType "text/html"
 
-        basicAuth <|
+        protect <|
             choose [
                 path "/expenses" >=> GET >=> request(getExpenseReports expenseReportService)
                 pathScan "/api/expense/%i" (fun expenseId ->
