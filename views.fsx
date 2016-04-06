@@ -132,6 +132,7 @@ module ExpenseReportView =
         scriptAttr ["id",templateName; "type","text/x-handlebars-template"] [node]
 
     let details expenseReport =
+        let submitUrl = sprintf "/api/expense/%i/submit" (expenseReport.Id)
         renderPage <|
             [
                 jsLink "/content/js/app.js"
@@ -139,7 +140,7 @@ module ExpenseReportView =
                     [h1 (text "File new expense")]
                 divAttr ["id","expense-form-container"] []
                 handlebar "expense-form-template" <|
-                    formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action","/expenses";"enctype","multipart/form-data"]
+                    formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action",submitUrl;"enctype","multipart/form-data"]
                         [
                             fieldset
                                 [
@@ -165,7 +166,10 @@ module ExpenseReportView =
                                                 {{#each Expenses}}
                                                     <li>
                                                         <span class="file-name">{{this.File.FileId}}: {{this.File.FileName}}</span>
-                                                        <input type="text" class="file-amount" value="{{this.Amount}}" id="file_{{this.File.FileId}}"></input>
+                                                        <span class="file-amount-container">
+                                                            <label for="file_{{this.File.FileId}}">Amount: </label>
+                                                            <input class="file-amount" type="text" value="{{this.Amount}}" name="file_{{this.File.FileId}}" id="file_{{this.File.FileId}}"></input>
+                                                        </span>
                                                     </li>
                                                 {{/each}}
                                                 """)
@@ -175,7 +179,9 @@ module ExpenseReportView =
                                                 (div [inputAttr ["type","file";"name","File";"class","pure-input-1-4 file-uploader"]]))
                                         ]
 
+                                    (Text "{{#if notSubmitted}}")
                                     buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")
+                                    (Text "{{/if}}")
                                 ]
                         ]
             ]

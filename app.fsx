@@ -58,9 +58,9 @@ module Api =
             | None ->
                 RequestErrors.NOT_FOUND "Not found")
 
-    let submitExpenseReport expenseReportService id _ =
+    let submitExpenseReport expenseReportService id =
         expenseReportService.SubmitExpenseReport id
-        OK ""
+        getExpenseReport expenseReportService id
 
     let updateExpense expenseReportService request =
         request

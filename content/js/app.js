@@ -91,6 +91,14 @@ window.Handlebars.registerHelper('select', function( value, options ){
         })
     }
 
+    var submitExpense = data => {
+        fetch('/api/expense/' + data.Id + '/submit', {
+    	       method: 'post',
+               credentials: 'same-origin'
+        })
+        model.data.notSubmitted = false
+    }
+
     const addFile = (data, rerender) => {
         model.data.Expenses.push({File: data, Amount: 0})
         console.log("File save", model.data)
@@ -111,6 +119,7 @@ window.Handlebars.registerHelper('select', function( value, options ){
             Description: model.container.querySelector("input[name='Description']").value,
             Expenses: model.data.Expenses,
             Id: model.data.Id,
+            notSubmitted: model.data.notSubmitted,
             Project: model.container.querySelector("select[name='Project']").value,
             Status: model.data.Status
         }
@@ -125,6 +134,13 @@ window.Handlebars.registerHelper('select', function( value, options ){
         })
         container.getElementsByTagName("select").map(function(e) {
             e.addEventListener("change", reload(rerender))
+        })
+        container.getElementsByTagName("form").map(function(elem) {
+            elem.addEventListener("submit", function(e) {
+                e.preventDefault()
+                submitExpense(model.data)
+                rerender()
+            })
         })
         var uploadPath = '/api/expense/' + data.Id + '/file'
         var fileUploaders = container.getElementsByClassName("file-uploader")
@@ -142,8 +158,8 @@ window.Handlebars.registerHelper('select', function( value, options ){
     Expense = {
         load: (data, expenseContainer) => {
             model = {data: data, container: expenseContainer}
+            model.data.notSubmitted = data.Status == 0;
             render()
-            console.log(data, expenseContainer)
         }
     }
 })()

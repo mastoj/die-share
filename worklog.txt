@@ -1,5 +1,7 @@
 Todos:
-* Add file to form
+* Add file to form -- done
+* Add total to expense form
+* Add submit function
 * Structure code
 * Split into demo parts
 * Make snippets
@@ -14,4 +16,3 @@ Demo:
     * Routes
     * Authorization
     * File expense
-    
