@@ -148,6 +148,9 @@ window.Handlebars.registerHelper('select', function( value, options ){
     }
 
     var render = () => {
+        model.data.Total = model.data.Expenses.reduce(function(prevVal, currentVal) {
+            return parseInt(currentVal.Amount) + prevVal
+        }, 0)
         var source = document.getElementById("expense-form-template").innerHTML;
         var template = Handlebars.compile(source)
         var html = template(model.data)
@@ -166,19 +169,15 @@ window.Handlebars.registerHelper('select', function( value, options ){
 
 document.addEventListener("DOMContentLoaded", function(event) {
     const expenseContainer = document.getElementById("expense-form-container")
-//    const expenseContainer = DS.expense(document.getElementById("expense-form-container"))
     var expenseId = window.location.pathname.split( '/' )[2]
     fetch('/api/expense/' + expenseId, {
 	       method: 'get',
            credentials: 'same-origin'
     }).then(function(response) {
-    	console.log(response)
         response.json().then(function(d) {
             Expense.load(d, expenseContainer)
         })
     }).catch(function(err) {
         console.log(err)
     });
-    console.log(expenseId)
-//    DS.createFileUploader(fileUploaders[0], uploadPath, function(d){expense.addFile(d)})
 })

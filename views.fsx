@@ -133,7 +133,7 @@ module ExpenseReportView =
 
     let expenseFormTemplate expenseReport =
         let submitUrl = sprintf "/api/expense/%i/submit" (expenseReport.Id)
-        formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action",submitUrl;"enctype","multipart/form-data"] [
+        formAttr ["id","expense-form"; "class", "expense-form pure-form pure-form-stacked";"method","post";"action",submitUrl;"enctype","multipart/form-data"] [
             fieldset [
                 divClass ["pure-g"] [
                     (inputElem
@@ -154,7 +154,7 @@ module ExpenseReportView =
                     ulAttr ["class","file-list pure-u-1"] [
                         (Text """{{#each Expenses}}""")
                         li [
-                            spanAttr ["class", "file-name"] (text "{{this.File.FileId}}: {{this.File.FileName}}")
+                            spanAttr ["class", "file-name"] (text "File: {{this.File.FileName}}")
                             spanAttr ["class", "file-amout-container"] [
                                 labelAttr ["for", "file_{{this.File.FileId}}"] (text "Amount: ")
                                 inputAttr ["class", "file-amount"; "type", "text"; "value", "{{this.Amount}}"; "name", "file_{{this.File.FileId}}"; "id", "file_{{this.File.FileId}}"]
@@ -162,7 +162,7 @@ module ExpenseReportView =
                         ]
                         (Text """{{/each}}""")
                     ]
-
+                    divClass ["expense-total"; "pure-u-1"] (text "Total: {{Total}} kr")
                     (Text "{{#if notSubmitted}}")
                     (inputElem
                         (labelAttr ["for","file"] (text "Files"))

@@ -200,6 +200,12 @@ p {
     color: #bada55;
 }
 
+.expense-form .file-list {
+    list-style: none;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
 /*
  * -- TABLET MEDIA QUERIES --
  * On tablets, we want to slightly adjust the size of the banner
