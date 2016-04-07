@@ -131,57 +131,60 @@ module ExpenseReportView =
     let handlebar templateName node =
         scriptAttr ["id",templateName; "type","text/x-handlebars-template"] [node]
 
-    let details expenseReport =
+    let expenseFormTemplate expenseReport =
         let submitUrl = sprintf "/api/expense/%i/submit" (expenseReport.Id)
+        formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action",submitUrl;"enctype","multipart/form-data"] [
+            fieldset [
+                divClass ["pure-g"] [
+                    (inputElem
+                        // Project
+                        (labelAttr ["for","project"] (text "Project"))
+                        (selectAttr ["name", "Project";"class","pure-input-1-4"]
+                            ([
+                                (text "{{#select Project}}")
+                                (getProjects |> List.map (fun x -> option (text x)))
+                                (text "{{/select}}")
+                             ] |> List.concat)))
+
+                    (inputElem
+                    // Description
+                        (labelAttr ["for","description"] (text "Description"))
+                        (inputAttr ["name", "Description"; "type", "text";"class","pure-input-1-4";"value","{{Description}}"]))
+
+                    ulAttr ["class","file-list pure-u-1"] [
+                        (Text """{{#each Expenses}}""")
+                        li [
+                            spanAttr ["class", "file-name"] (text "{{this.File.FileId}}: {{this.File.FileName}}")
+                            spanAttr ["class", "file-amout-container"] [
+                                labelAttr ["for", "file_{{this.File.FileId}}"] (text "Amount: ")
+                                inputAttr ["class", "file-amount"; "type", "text"; "value", "{{this.Amount}}"; "name", "file_{{this.File.FileId}}"; "id", "file_{{this.File.FileId}}"]
+                            ]
+                        ]
+                        (Text """{{/each}}""")
+                    ]
+
+                    (Text "{{#if notSubmitted}}")
+                    (inputElem
+                        (labelAttr ["for","file"] (text "Files"))
+                        (div [inputAttr ["type","file";"name","File";"class","pure-input-1-4 file-uploader"]]))
+                    (Text "{{/if}}")
+                ]
+
+                (Text "{{#if notSubmitted}}")
+                buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")
+                (Text "{{/if}}")
+                (Text "{{#unless notSubmitted}}")
+                spanAttr ["class", "expense-status"] (text "Submitted for approval")
+                (Text "{{/unless}}")
+            ]
+        ]
+
+    let details expenseReport =
         renderPage <|
             [
                 jsLink "/content/js/app.js"
                 divClass ["header-container"]
                     [h1 (text "File new expense")]
                 divAttr ["id","expense-form-container"] []
-                handlebar "expense-form-template" <|
-                    formAttr ["id","expense-form"; "class", "pure-form pure-form-stacked";"method","post";"action",submitUrl;"enctype","multipart/form-data"]
-                        [
-                            fieldset
-                                [
-                                    divClass ["pure-g"]
-                                        [
-                                            (inputElem
-                                                // Project
-                                                (labelAttr ["for","project"] (text "Project"))
-                                                (selectAttr ["name", "Project";"class","pure-input-1-4"]
-                                                    ([
-                                                        (text "{{#select Project}}")
-                                                        (getProjects |> List.map (fun x -> option (text x)))
-                                                        (text "{{/select}}")
-                                                     ] |> List.concat)))
-
-                                            (inputElem
-                                            // Description
-                                                (labelAttr ["for","description"] (text "Description"))
-                                                (inputAttr ["name", "Description"; "type", "text";"class","pure-input-1-4";"value","{{Description}}"]))
-
-                                            ulAttr ["class","file-list pure-u-1"]
-                                                (text """
-                                                {{#each Expenses}}
-                                                    <li>
-                                                        <span class="file-name">{{this.File.FileId}}: {{this.File.FileName}}</span>
-                                                        <span class="file-amount-container">
-                                                            <label for="file_{{this.File.FileId}}">Amount: </label>
-                                                            <input class="file-amount" type="text" value="{{this.Amount}}" name="file_{{this.File.FileId}}" id="file_{{this.File.FileId}}"></input>
-                                                        </span>
-                                                    </li>
-                                                {{/each}}
-                                                """)
-
-                                            (inputElem
-                                                (labelAttr ["for","file"] (text "Files"))
-                                                (div [inputAttr ["type","file";"name","File";"class","pure-input-1-4 file-uploader"]]))
-                                        ]
-
-                                    (Text "{{#if notSubmitted}}")
-                                    buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Submit expense")
-                                    (Text "{{/if}}")
-                                ]
-                        ]
+                handlebar "expense-form-template" <| expenseFormTemplate expenseReport
             ]
