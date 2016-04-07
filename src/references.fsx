@@ -1,6 +1,6 @@
 #I "../packages/FSharp.Core/lib/net40/"
 #I "../packages/Suave/lib/net40/"
-//#I "./packages/Suave.Experimental/lib/net40/"
+#I "../packages/Suave.Experimental/lib/net40/"
 #I "/Users/tomasjansson/git/suave/src/Experimental/bin/Release"
 #I "../packages/Newtonsoft.Json/lib/net45"
 

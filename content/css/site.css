@@ -195,11 +195,6 @@ p {
     color: #526066;
 }
 
-.expense-report-item.submitted a {
-    background-color: #BA11ED;
-    color: #ACCE55
-}
-
 .expense-report-list a:hover {
     background-color: #526066;
     color: #bada55;

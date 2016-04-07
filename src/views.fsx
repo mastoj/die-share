@@ -108,7 +108,9 @@ module ExpenseReportView =
     let getProjects = ["Rock"; "Paper"; "Scissor"; "Lizard"; "Spock"]
 
     let expenseListItem expenseReport =
-        liAttr ["class", "expense-report-item"]
+        let className =
+            if expenseReport.Status <> ExpenseReportStatus.Created then " submitted" else ""
+        liAttr ["class", "expense-report-item" + className]
             [
                 a (sprintf "/expense/%i" expenseReport.Id)
                     [

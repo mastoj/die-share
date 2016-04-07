@@ -70,7 +70,10 @@ let createExpenseReportService() =
                     reply.Reply(expenseReport)
                     return! loop (state |> Map.add id expenseReport)
                 | UpdateExpenseReport er ->
-                    return! loop (state |> Map.add er.Id er)
+                    match state |> Map.tryFind er.Id with
+                    | Some x when x.Status = ExpenseReportStatus.Created ->
+                        return! loop (state |> Map.add er.Id er)
+                    | _ -> return! loop state
                 | SubmitExpenseReport id ->
                     let er = state |> Map.find id
                     return! loop (state |> Map.add er.Id {er with Status = ExpenseReportStatus.Submitted})

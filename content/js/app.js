@@ -147,16 +147,6 @@ window.Handlebars.registerHelper('select', function( value, options ){
         DS.createFileUploader(fileUploaders[0], uploadPath, function(d){addFile(d, rerender)})
     }
 
-    var disableAllInputs = container => {
-        ["input", "select"].map(function(tagName){
-            container
-                .getElementsByTagName(tagName)
-                .map(function(elem){
-                    elem.disabled = true
-                })
-        })
-    }
-
     var render = () => {
         model.data.Total = model.data.Expenses.reduce(function(prevVal, currentVal) {
             return parseInt(currentVal.Amount) + prevVal
@@ -165,16 +155,13 @@ window.Handlebars.registerHelper('select', function( value, options ){
         var template = Handlebars.compile(source)
         var html = template(model.data)
         model.container.innerHTML = html
-        if(!model.data.notSubmitted) {
-            disableAllInputs(model.container)
-        }
         attachListeners(model.container, model.data, render)
     }
 
     Expense = {
         load: (data, expenseContainer) => {
             model = {data: data, container: expenseContainer}
-            model.data.notSubmitted = data.Status == 0
+            model.data.notSubmitted = data.Status == 0;
             render()
         }
     }
