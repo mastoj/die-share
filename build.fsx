@@ -29,7 +29,7 @@ let reportFsiError (e:exn) =
 let reloadScript () =
   try
     traceImportant "Reloading app.fsx script..."
-    let appFsx = projectRoot @@ "app.fsx"
+    let appFsx = projectRoot @@ "src/app.fsx"
     fsiSession.EvalInteraction(sprintf "#load @\"%s\"" appFsx)
     fsiSession.EvalInteraction("open App")
     match fsiSession.EvalExpression("app") with
@@ -69,15 +69,8 @@ Target "run" (fun _ ->
 
   // Watch for changes & reload when app.fsx changes
   use rootWatcher =
-      !! (projectRoot @@ "*.*")
-      -- (projectRoot @@ ".*")
-      -- (projectRoot @@ "run.log")
-      -- (projectRoot @@ "uploads")
+      !! (projectRoot @@ "src/**")
     |> WatchChangesWithOptions {IncludeSubdirectories = false} (fun x -> printfn "Changes: %A" x; reloadAppServer())
-
-  use folderWatcher =
-      !! (projectRoot @@ "content/*")
-    |> WatchChanges (fun x -> printfn "Changes: %A" x; reloadAppServer())
 
   traceImportant "Waiting for app.fsx edits. Press any key to stop."
   //System.Console.ReadLine() |> ignore

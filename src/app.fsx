@@ -40,7 +40,7 @@ module FileIO =
 let random = new Random()
 let saveFile expenseId httpFile =
     let fileId = random.Next(999999)
-    let directoryPath = sprintf "%s/uploads/%i/%i/" __SOURCE_DIRECTORY__ expenseId fileId
+    let directoryPath = sprintf "%s/../uploads/%i/%i/" __SOURCE_DIRECTORY__ expenseId fileId
     let targetFilePath = sprintf "%s%s" directoryPath httpFile.fileName
     FileIO.createDirectory (directoryPath)
     FileIO.move httpFile.tempFilePath (targetFilePath)
