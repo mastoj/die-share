@@ -1,23 +1,37 @@
-#load "references.fsx"
-#load "app.fsx"
+#load "src/references.fsx"
+//#load "app.fsx"
 
 open Suave
 open Suave.Filters
 open Suave.Successful
+open Suave.RequestErrors
 open Suave.Operators
-open App
+open System
+//open App
+module Logging =
+    let logTimestampPart prefix (ctx:HttpContext) =
+        async {
+            printfn "==> %s: %A" prefix (DateTime.Now.ToString("O"))
+            return Some ctx
+        }
+    let logRequestPart (ctx:HttpContext) =
+        async {
+            printfn "==> Request: %A" ctx.request.path
+            return Some ctx
+        }
 
-let app2 = OK (sprintf "HELLO WORLD %A" System.DateTime.Now.Ticks)
+    let logPart (part:WebPart) =
+        logRequestPart
+        >=> logTimestampPart "Start"
+        >=> part
+        >=> logTimestampPart "End"
+
+let app =
+    choose [
+        path "/hello" >=> (OK "Hello world")
+        pathScan "/hello/%i" ((sprintf "Hello %i") >> OK)
+        NOT_FOUND (sprintf "ohuh %A" System.DateTime.Now.Ticks)
+    ] |> Logging.logPart
 
 // HttpContext -> Async<HttpContext option>
-
-let webpart1 (ctx:HttpContext) =
-    let hellobytes = System.Text.Encoding.UTF8.GetBytes(sprintf "Hello world %A" System.DateTime.Now)
-    async {
-        return {
-            ctx with
-                response = { ctx.response with status = HTTP_200; content = Bytes hellobytes }
-        } |> Some
-    }
-
-startWebServer defaultConfig app2
+startWebServer defaultConfig app
