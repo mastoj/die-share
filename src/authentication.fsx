@@ -1,4 +1,5 @@
 #load "references.fsx"
+#load "path.fsx"
 
 open Suave
 open Suave.Cookie
@@ -8,12 +9,12 @@ open Suave.Utils
 open Suave.Form
 open Suave.Model.Binding
 
-type Logon = {
+type Login = {
     UserName : string
     Password : Password
 }
 
-let logon : Form<Logon> = Form ([],[])
+let login : Form<Login> = Form ([],[])
 
 let inline private addUserName ctx username =
     { ctx with userState = ctx.userState |> Map.add UserNameKey (box username) }
@@ -26,7 +27,7 @@ let getReturnUrl (req:HttpRequest) =
         url
     | Choice2Of2 _ ->
         printfn "Got %A in choice 2" (req.queryParam returnUrlQueryParam)
-        "/"
+        Path.home
 
 let handleLogin (req:HttpRequest) logonData =
     let (Password passwordText) = logonData.Password
@@ -38,11 +39,11 @@ let handleLogin (req:HttpRequest) logonData =
           (sprintf "%A" >> RequestErrors.BAD_REQUEST >> Choice2Of2)
           (Redirection.redirect redirectionUrl)
     else
-        Redirection.redirect "/login"
+        Redirection.redirect Path.login
 
-let loginUser =
+let userLogin =
     request(fun r ->
-            bindReq (bindForm logon) (handleLogin r) BAD_REQUEST
+            bindReq (bindForm login) (handleLogin r) BAD_REQUEST
         )
 
 let logout =
@@ -66,16 +67,10 @@ let authenticateForms (logonPart:WebPart) (protectedPart:WebPart) =
               continuation
         )
 
-let getAuthCookie() =
-    Choice2Of2 "tomas"
-
-let updateAuthCookie userName = ()
-let addUserNameToState userName = ()
-
 let protect protectedPart =
     request(fun r ->
             let returnUrl = r.url.AbsolutePath
-            let loginUrl = sprintf "/login?%s=%s" returnUrlQueryParam returnUrl
+            let loginUrl = Path.login + sprintf "?%s=%s" returnUrlQueryParam returnUrl
             authenticateForms (Redirection.redirect loginUrl) protectedPart
         )
 

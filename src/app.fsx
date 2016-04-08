@@ -1,5 +1,8 @@
 #load "references.fsx"
+#load "path.fsx"
+#load "helpers.fsx"
 #load "expense.fsx"
+#load "api.fsx"
 #load "views.fsx"
 #load "authentication.fsx"
 
@@ -19,72 +22,8 @@ open System.IO
 open Expense
 open Views
 open Authentication
-
-[<AutoOpen>]
-module Helpers =
-    let toJson value = JsonConvert.SerializeObject(value)
-    let fromJson<'T> (request:HttpRequest) =
-        let json = System.Text.Encoding.UTF8.GetString(request.rawForm)
-        JsonConvert.DeserializeObject<'T>(json)
-
-[<AutoOpen>]
-module FileIO =
-    open System.IO
-    let move src dest =
-        if File.Exists(dest) then File.Delete(dest)
-        File.Move(src, dest)
-
-    let createDirectory path =
-        if not (Directory.Exists(path)) then Directory.CreateDirectory(path) |> ignore
-
-let random = new Random()
-let saveFile expenseId httpFile =
-    let fileId = random.Next(999999)
-    let directoryPath = sprintf "%s/../uploads/%i/%i/" __SOURCE_DIRECTORY__ expenseId fileId
-    let targetFilePath = sprintf "%s%s" directoryPath httpFile.fileName
-    FileIO.createDirectory (directoryPath)
-    FileIO.move httpFile.tempFilePath (targetFilePath)
-    fileId
-
-[<AutoOpen>]
-module Api =
-    let getExpenseReport expenseReportService expenseId _ =
-        expenseReportService.GetExpenseReport expenseId
-        |> (function
-            | Some er ->
-                er
-                |> toJson
-                |> OK
-            | None ->
-                RequestErrors.NOT_FOUND "Not found")
-
-    let submitExpenseReport expenseReportService id =
-        expenseReportService.SubmitExpenseReport id
-        getExpenseReport expenseReportService id
-
-    let updateExpense expenseReportService request =
-        request
-        |> fromJson<ExpenseReport>
-        |> expenseReportService.UpdateExpenseReport
-        OK ""
-
-    let getExpenseReports expenseReportService _ =
-        expenseReportService.GetExpenseReports "tomas"
-        |> toJson
-        |> OK
-
-    let uploadFile expenseId request =
-        request.multiPartFields |> List.iter (printfn "Multipart fields: %A")
-        let file = request.files |> List.head
-        let fileId = file |> saveFile expenseId
-        let result =
-            {
-                FileName = file.fileName
-                FileId = fileId
-                MimeType = file.mimeType
-            }
-        let resultString = JsonConvert.SerializeObject(result)
-        OK resultString
+open Helpers
+open Api
 
 [<AutoOpen>]
 module Content =
@@ -118,28 +57,28 @@ let app =
         pathScan "/content/%s.%s" readContent
 
         choose [
-            path "/" >=> (OK (Home.index()))
-            path "/login" >=>
+            path Path.home >=> (OK (Home.index()))
+            path Path.login >=>
                 choose [
                     GET >=> request(fun r -> OK (AuthenticationView.index (Authentication.getReturnUrl r)))
-                    POST >=> loginUser
+                    POST >=> userLogin
                 ]
-            path "/logout" >=> logout >=> (Redirection.redirect "/")
+            path Path.logout >=> logout >=> (Redirection.redirect Path.home)
             Authentication.protect <|
                 choose [
-                    path "/expenses" >=>
+                    path Path.Expense.index >=>
                         choose [
                             GET >=> context(fun c ->
                                 let userName = getUserName c |> Option.get
                                 let expenseReports = expenseReportService.GetExpenseReports userName
                                 OK (ExpenseReportView.expenses expenseReports))
                         ]
-                    path "/expense"
+                    path Path.Expense.create
                         >=> POST
                         >=> context(fun c ->
                             let er = expenseReportService.CreateExpenseReport (getUserName c |> Option.get)
-                            Redirection.redirect (sprintf "/expense/%i" er.Id))
-                    pathScan "/expense/%i" (fun i ->
+                            Redirection.redirect (sprintf Path.Expense.details er.Id))
+                    pathScan Path.Expense.details (fun i ->
                             choose [
                                 GET >=> context(fun c ->
                                             expenseReportService.GetExpenseReport i
@@ -149,23 +88,21 @@ let app =
                                                         |> ExpenseReportView.details
                                                         |> OK
                                                     | None -> Suave.RequestErrors.NOT_FOUND "No matching expense report"))
-                                POST >=> OK "HELL"
                             ])
                 ]
         ] >=> Writers.setMimeType "text/html"
 
         protect <|
             choose [
-                path "/expenses" >=> GET >=> request(getExpenseReports expenseReportService)
-                pathScan "/api/expense/%i" (fun expenseId ->
+                pathScan Path.Api.Expense.details (fun expenseId ->
                     choose [
                         GET >=> request(getExpenseReport expenseReportService expenseId)
                         PUT >=> request(updateExpense expenseReportService)
                     ])
-                pathScan "/api/expense/%i/submit" (fun expenseId ->
+                pathScan Path.Api.Expense.submit (fun expenseId ->
                         POST >=> request(submitExpenseReport expenseReportService expenseId)
                     )
-                pathScan "/api/expense/%i/file" (fun expenseId ->
+                pathScan Path.Api.Expense.fileUpload (fun expenseId ->
                     choose [
                         POST >=> request(uploadFile expenseId)
                     ])

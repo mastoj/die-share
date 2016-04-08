@@ -1,6 +1,7 @@
 #load "references.fsx"
 #load "expense.fsx"
 #load "html.fsx"
+#load "path.fsx"
 
 open Suave.Html
 
@@ -29,7 +30,7 @@ module Layout =
             metaAttr ["name","viewport"; "content","width=device-width, initial-scale=1.0"]
             cssLink "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"
             cssLink "http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css"
-            cssLink "/content/css/site.css"
+            cssLink (sprintf Path.Content.CSS.file "site.css")
 
             jsLink "https://code.jquery.com/jquery-2.2.2.min.js"
             jsLink "http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v4.0.5.js"
@@ -80,7 +81,7 @@ module FormHelpers =
 
 module AuthenticationView =
     let index returnUrl =
-        let postUrl = sprintf "/login?returnurl=%s" returnUrl
+        let postUrl = Path.login + sprintf "?returnurl=%s" returnUrl
         renderPage <|
             [
                 formAttr ["class", "pure-form pure-form-stacked";"method","post";"action",postUrl;"enctype","multipart/x-www-form-urlencoded"]
@@ -99,7 +100,7 @@ module AuthenticationView =
                                             (div [inputAttr ["type","password";"name","Password";"class","pure-input-1-4"]]))
                                     ]
 
-                                buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Logon")
+                                buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "Log in")
                             ]
                     ]
             ]
@@ -112,7 +113,7 @@ module ExpenseReportView =
             if expenseReport.Status <> ExpenseReportStatus.Created then " submitted" else ""
         liAttr ["class", "expense-report-item" + className]
             [
-                a (sprintf "/expense/%i" expenseReport.Id)
+                a (sprintf Path.Expense.details expenseReport.Id)
                     [
                         spanAttr ["class", "expense-report-item-title"] (text expenseReport.Description)
                         spanAttr ["class", "expense-report-item-amount"] (text (sprintf " - %i kr" (expenseReport.Expenses |> List.sumBy (fun x -> x.Amount))))
@@ -126,7 +127,7 @@ module ExpenseReportView =
         renderPage <|
             [
                 h1 (text "Expenses")
-                formAttr ["method","post";"action","/expense"] [buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "New expense report")]
+                formAttr ["method","post";"action",Path.Expense.create] [buttonAttr ["type","submit";"class","pure-button pure-button-primary"] (text "New expense report")]
                 expenseList expenseReports
             ]
 
@@ -134,7 +135,7 @@ module ExpenseReportView =
         scriptAttr ["id",templateName; "type","text/x-handlebars-template"] [node]
 
     let expenseFormTemplate expenseReport =
-        let submitUrl = sprintf "/api/expense/%i/submit" (expenseReport.Id)
+        let submitUrl = sprintf Path.Api.Expense.submit (expenseReport.Id)
         formAttr ["id","expense-form"; "class", "expense-form pure-form pure-form-stacked";"method","post";"action",submitUrl;"enctype","multipart/form-data"] [
             fieldset [
                 divClass ["pure-g"] [
@@ -184,7 +185,7 @@ module ExpenseReportView =
     let details expenseReport =
         renderPage <|
             [
-                jsLink "/content/js/app.js"
+                jsLink (sprintf Path.Content.JS.file "app.js")
                 divClass ["header-container"]
                     [h1 (text "File new expense")]
                 divAttr ["id","expense-form-container"] []
