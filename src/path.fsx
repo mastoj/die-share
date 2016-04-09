@@ -2,6 +2,7 @@ open System
 type IntPath = PrintfFormat<(int -> string),unit,string,string,int>
 type IntIntPath = PrintfFormat<(int -> int -> string),unit,string,string,(int*int)>
 type StringPath = PrintfFormat<(string -> string),unit,string,string,string>
+type StringStringPath = PrintfFormat<(string -> string -> string),unit,string,string,(string*string)>
 
 let home = "/"
 let login = "/login"
@@ -19,6 +20,8 @@ module Api =
         let fileUpload:IntPath = "/api/expense/%i/file"
 
 module Content =
+    let file:StringStringPath = "/content/%s.%s"
+
     module JS =
         let file:StringPath = "/content/js/%s"
 

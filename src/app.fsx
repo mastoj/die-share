@@ -18,7 +18,7 @@ open Expense
 let app =
     let expenseReportService = createExpenseReportService()
     choose [
-        pathScan "/content/%s.%s" Content.readContent
+        pathScan Path.Content.file Content.readContent
 
         choose [
             path Path.home >=> Web.index

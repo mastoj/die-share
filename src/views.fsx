@@ -16,9 +16,8 @@ module Layout =
                 aAttr "#" ["class", "pure-menu-heading"] (text "DIE-SHARE")
                 ulAttr ["class","pure-menu-list"]
                     [
-                        for x in ["Expenses"; "Travels"; "Do not click this"] do
-                            let link = sprintf "/%s" (x.ToLower())
-                            yield liAttr ["class","pure-menu-item"] [(aAttr link ["class","pure-menu-link"] (text x))]
+                        for (header, path) in [("Expenses",Path.Expense.index); ("Travels", Path.home); ("Do not click this", Path.logout)] do
+                            yield liAttr ["class","pure-menu-item"] [(aAttr path ["class","pure-menu-link"] (text header))]
                     ]
             ]
 
