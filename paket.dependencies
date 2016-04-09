@@ -1,14 +1,3 @@
 source https://www.nuget.org/api/v2
-source https://ci.appveyor.com/nuget/suave-wwf4q3qudake
 
-nuget Suave 2.0.0-alpha
-nuget Suave.Experimental 2.0.0-alpha
-nuget Akka
-nuget Akka.FSharp
-nuget FSharp.Core
-nuget FSharp.Data
-nuget FAKE
-nuget FSharp.Compiler.Service
-nuget Newtonsoft.Json
-
-gist mastoj/43331973297ae3a8da8b
+nuget Suave

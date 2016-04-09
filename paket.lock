@@ -1,32 +1,6 @@
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    Akka (1.0.6)
-      Newtonsoft.Json (>= 7.0.1)
-    Akka.FSharp (1.0.6)
-      Akka (>= 1.0.6)
-      FsPickler (>= 1.2.21)
-      FSPowerPack.Core.Community (>= 3.0.0)
-      FSPowerPack.Linq.Community (>= 3.0.0)
-    FAKE (4.23.1)
-    FSharp.Compiler.Service (2.0.0.8)
     FSharp.Core (4.0.0.1)
-    FSharp.Data (2.2.5)
-      Zlib.Portable (>= 1.10.0) - framework: portable-net40+sl50+wp80+win80
-    FsPickler (2.0.0)
-    FSPowerPack.Core.Community (3.0.0)
-    FSPowerPack.Linq.Community (3.0.0)
-      FSPowerPack.Core.Community
-    Newtonsoft.Json (8.0.3)
-    Zlib.Portable (1.11.0) - framework: portable-net40+sl50+wp80+win80
-  remote: https://ci.appveyor.com/nuget/suave-wwf4q3qudake
-  specs:
-    Suave (2.0.0-alpha)
+    Suave (1.1.2)
       FSharp.Core (>= 3.1.2.5)
-    Suave.Experimental (2.0.0-alpha)
-      FSharp.Core (>= 3.1.2.5)
-      Suave (>= 2.0.0-alpha)
-GIST
-  remote: mastoj/43331973297ae3a8da8b
-  specs:
-    FULLPROJECT (007429062a7922f46c6b2467384193d53da2fe44)
