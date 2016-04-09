@@ -8,6 +8,7 @@ open Suave.RequestErrors
 open Suave.Operators
 open System
 //open App
+
 module Logging =
     let logTimestampPart prefix (ctx:HttpContext) =
         async {
