@@ -41,10 +41,8 @@ let handleLogin (req:HttpRequest) logonData =
     else
         Redirection.redirect Path.login
 
-let userLogin =
-    request(fun r ->
-            bindReq (bindForm login) (handleLogin r) BAD_REQUEST
-        )
+let userLogin (req:HttpRequest) =
+        bindReq (bindForm login) (handleLogin req) BAD_REQUEST
 
 let logout =
     Suave.Cookie.unsetCookie SessionAuthCookie
