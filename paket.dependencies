@@ -1,7 +1,9 @@
 source https://www.nuget.org/api/v2
+source https://ci.appveyor.com/nuget/suave-wwf4q3qudake
 
 nuget Suave 2.0.0-alpha3
 nuget FSharp.Compiler.Service
 nuget Fake
 nuget FSharp.Data
 nuget Fake
+nuget Newtonsoft.Json
