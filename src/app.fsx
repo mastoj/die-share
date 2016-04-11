@@ -7,5 +7,4 @@ open Suave.Filters
 
 let app =
     choose [
-        pathScan Path.Content.file Content.readContent
     ]
