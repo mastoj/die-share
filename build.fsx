@@ -31,7 +31,7 @@ let reloadScript () =
     traceImportant "Reloading app.fsx script..."
     let appFsx = projectRoot @@ "server.fsx"
     fsiSession.EvalInteraction(sprintf "#load @\"%s\"" appFsx)
-    fsiSession.EvalInteraction("open App")
+    fsiSession.EvalInteraction("open Server")
     match fsiSession.EvalExpression("app") with
     | Some app ->
         let webPart = app.ReflectionValue :?> WebPart
