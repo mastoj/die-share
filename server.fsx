@@ -41,4 +41,4 @@ let app =
         NOT_FOUND "#wat"
     ] |> Logging.logRequest
 
-startWebServer defaultConfig app
+//startWebServer defaultConfig app
