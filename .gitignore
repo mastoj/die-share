@@ -4,3 +4,4 @@ packages/
 .pid
 run.log
 uploads/
+.DS_Store
