@@ -64,7 +64,7 @@ Target "run" (fun _ ->
   reloadAppServer()
   Async.Start(server)
   // Open web browser with the loaded file
-  System.Diagnostics.Process.Start("http://localhost:8033") |> ignore
+//  System.Diagnostics.Process.Start("http://localhost:8033") |> ignore
 
 
   // Watch for changes & reload when app.fsx changes
