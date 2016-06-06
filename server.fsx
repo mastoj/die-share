@@ -14,7 +14,8 @@ open Suave.RequestErrors
 let hello1 = OK "Hello NDC"
 let hello2 (ctx:HttpContext) =
     async {
-        let responseBytes = System.Text.Encoding.UTF8.GetBytes("Hello world")
+        let host = System.Environment.MachineName
+        let responseBytes = System.Text.Encoding.UTF8.GetBytes("Hello world: " + host)
         let response = {
                 ctx.response with content = Bytes responseBytes
             }

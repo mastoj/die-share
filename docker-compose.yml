@@ -1,0 +1,12 @@
+web:
+    image: mastoj/my-share
+    ports:
+        - "8033"
+nginx:
+    image: jwilder/nginx-proxy
+    links:
+        - web
+    ports:
+        - "80:80"
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
